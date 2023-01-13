@@ -6,8 +6,11 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 from bot.handlers import register_all_handlers
 
+from bot.database.sqlite_db import sql_start
+
 
 async def __on_start_up(dp: Dispatcher) -> None:
+    await sql_start()
     register_all_handlers(dp)
 
 

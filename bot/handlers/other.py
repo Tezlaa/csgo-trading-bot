@@ -3,17 +3,15 @@ from aiogram.types import Message
 
 from bot.keyboards.reply import start_kb
 
+from bot.database.sqlite_db import create_profile
+
 
 async def bot_start(msg: Message):
-    name = msg["from"]["username"]
-    await msg.answer(f'Привет, {name if name != "None" else msg["from"]["firstname"]}!\n'
+    name = msg["from"]["username"] if msg["from"]["username"] != "None" else msg["from"]["firstname"]
+    await msg.answer(f'Привет, {name}!\n'
                      f'Выбери интересующий пункт', reply_markup=start_kb)
-    
-
-async def echo(msg: Message):
-    await msg.answer(msg.text)
+    await create_profile(user_id=msg["from"]["id"], username=name)
 
 
 def register_other_handlers(dp: Dispatcher):
     dp.register_message_handler(bot_start, commands=['start'])
-    dp.register_message_handler(echo, content_types=["text"])
