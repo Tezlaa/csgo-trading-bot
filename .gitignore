@@ -1,5 +1,6 @@
 *.bat
 *.csv
+*.db
 __pycache__
 venv
 .vscode
