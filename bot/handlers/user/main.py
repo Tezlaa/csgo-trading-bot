@@ -1,23 +1,30 @@
 import logging
 import os
+import random
+from datetime import datetime, time, timedelta
 
 from aiogram import Bot, Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
-from pyqiwip2p import QiwiP2P
-
 from bot import main
 from bot.database.sqlite_db import get_admin_id, unbalance
-from bot.keyboards.inline import button_price, top_up_balance_steam, way_of_payment
-from bot.keyboards.reply import open_market_kb, start_kb
 from bot.handlers.user.different import send_offer_all_admin
+from bot.keyboards.inline import button_price, qiwi_menu, top_up_balance_steam, way_of_payment
+from bot.keyboards.reply import open_market_kb, start_kb
+
+from glQiwiApi import QiwiP2PClient
+from glQiwiApi.qiwi.clients.p2p.types import Bill
+
+import pytz
+
 
 class FSMselectMarket(StatesGroup):
     set_login = State()
     set_amount = State()
     select_payment = State()
+    payment_p2p = State()
 
 
 async def top_up_steam(msg: types.Message):
@@ -38,7 +45,8 @@ async def close_market(call: types.CallbackQuery):
 async def set_user_login(msg: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data["user_login"] = msg.text
-    await msg.answer('Введите сумму пополнения или выберите из популярных', reply_markup=button_price)
+    await msg.answer('Введите сумму пополнения или выберите из популярных',
+                     reply_markup=button_price)
     await FSMselectMarket.next()
 
 
@@ -53,14 +61,16 @@ async def set_amount(msg, state: FSMContext):
                 data["amount"] = msg.text
         else:
             await msg.answer('Минимальная сумма - 100руб')
-            await msg.answer('Введите сумму пополнения или выберите из популярных', reply_markup=button_price)
+            await msg.answer('Введите сумму пополнения или выберите из популярных',
+                             reply_markup=button_price)
             return
 
     await msg.answer(f'Информация по оплате\n'
                      f'Логин: {data["user_login"]}\n'
                      f'Заплатите: {data["amount"]}руб\n'
                      f'Получите: {data["amount"]}руб\n\n'
-                     f'Выберите способ оплаты', reply_markup=way_of_payment)
+                     f'Выберите способ оплаты',
+                     reply_markup=way_of_payment)
     await FSMselectMarket.next()
 
 
@@ -73,14 +83,42 @@ async def select_payment(call: types.CallbackQuery, state: FSMContext):
             await unbalance(data['amount'], call.from_user.id)
         except ValueError:  # if not enough balance
             await call.message.answer('Недостаточно денег на балансе бота!')
-            await call.message.answer('Введите сумму пополнения или выберите из популярных', reply_markup=button_price)
+            await call.message.answer('Введите сумму пополнения или выберите из популярных',
+                                      reply_markup=button_price)
             return await FSMselectMarket.previous()
-    elif data["payment_via"] == 'qiwi':
         
-    
-    await send_offer_all_admin(data["user_login"], data["amount"], data["payment_via"])
-    await state.finish()
+        await state.finish()
+        await send_offer_all_admin(data["user_login"], data["amount"], data["payment_via"])
+    elif data["payment_via"] == 'qiwi':
+        comment = str(call.from_user.id) + "_" + str(random.randint(10000, 99999))
+        
+        bill = await main.p2p_qiwi.create_p2p_bill(amount=data['amount'],
+                                                   expire_at=(datetime.now() + timedelta(minutes=3)),
+                                                   comment=comment)
+        async with state.proxy() as data:
+            data["bill"] = bill
+        
+        await call.message.answer(f'Отправьте {data["amount"]}руб на счёт QIWI\n'
+                                  f'Ссылка: {bill.pay_url}\n'
+                                  f'Указав в комментарии к оплате: {comment}',
+                                  reply_markup=qiwi_menu(url=bill.pay_url, bill=bill.id))
+        
+        await FSMselectMarket.next()
 
+
+async def qiwi_payment(call: types.CallbackQuery, state: FSMContext):
+    async with state.proxy() as data:
+        bill: Bill = data.get("bill")
+    
+    if await main.p2p_qiwi.check_if_bill_was_paid(bill):
+        async with state.proxy() as data:
+            await send_offer_all_admin(bill, data["amount"], data["payment_via"])
+        await call.message.answer('Ожидайте поступления средств',
+                                  reply_markup=start_kb)
+        await state.finish()
+    else:
+        await call.message.answer('Вы не оплатили счёт', reply_markup=qiwi_menu(is_url=False, bill=bill.id))
+    
 
 def register_user_handlers(dp: Dispatcher):
     dp.register_message_handler(top_up_steam, Text(equals='Пополнить баланс steam'))
@@ -90,4 +128,5 @@ def register_user_handlers(dp: Dispatcher):
     dp.register_callback_query_handler(set_amount, state=FSMselectMarket.set_amount)
     dp.register_message_handler(set_amount, state=FSMselectMarket.set_amount)
     dp.register_callback_query_handler(select_payment, state=FSMselectMarket.select_payment)
+    dp.register_callback_query_handler(qiwi_payment, text_contains="check_", state=FSMselectMarket.payment_p2p)
     dp.register_callback_query_handler(open_market, text='open_market')

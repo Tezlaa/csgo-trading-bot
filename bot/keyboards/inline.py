@@ -20,3 +20,15 @@ way_of_payment = InlineKeyboardMarkup(row_width=1).add(
     InlineKeyboardButton('Баланс бота', callback_data='bot'),
     InlineKeyboardButton('Qiwi', callback_data='qiwi')
 )
+
+
+def qiwi_menu(is_url=True, url="", bill="") -> InlineKeyboardMarkup:
+    qiwi_kb = InlineKeyboardMarkup(row_width=1)
+    if is_url:
+        url_qiwi = InlineKeyboardButton('Ссылка на оплату', url=url)
+        qiwi_kb.insert(url_qiwi)
+        
+    check_qiwi = InlineKeyboardButton('Проверить оплату', callback_data='check_' + str(bill))
+    qiwi_kb.insert(check_qiwi)
+    return qiwi_kb
+    

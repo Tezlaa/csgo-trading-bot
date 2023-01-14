@@ -1,4 +1,5 @@
 import logging
+import random
 import os
 from datetime import datetime
 
@@ -24,3 +25,10 @@ async def send_offer_all_admin(user_login, amount, way_of_payment):
     for admin_id in list_admin:
         await main.bot.send_message(admin_id, text_for_admin, parse_mode='MARKDOWN')
     return
+
+
+async def payment_p2p_qiwi(call: types.CallbackQuery, data: dict):
+    comment = str(call.from_user.id) + "_" + str(random.randint(1000, 9999))
+    bill = main.p2p.bill(amount=data["amount"], lifetime=15, comment=comment)
+    
+    await call.message.answer(f'Отправьте {data["amount"]}руб на счёт QIWI\nСсылка: {bill.pay_url}\nУказав в комментарии к оплате: {comment}')
