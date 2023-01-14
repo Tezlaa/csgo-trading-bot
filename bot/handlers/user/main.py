@@ -6,6 +6,8 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
+from pyqiwip2p import QiwiP2P
+
 from bot import main
 from bot.database.sqlite_db import get_admin_id, unbalance
 from bot.keyboards.inline import button_price, top_up_balance_steam, way_of_payment
@@ -66,12 +68,15 @@ async def select_payment(call: types.CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         data["payment_via"] = call.data
     
-    try:
-        await unbalance(data['amount'], call.from_user.id)
-    except ValueError:  # if not enough balance
-        await call.message.answer('Недостаточно денег на балансе бота!')
-        await call.message.answer('Введите сумму пополнения или выберите из популярных', reply_markup=button_price)
-        return await FSMselectMarket.previous()
+    if data["payment_via"] == 'bot':
+        try:
+            await unbalance(data['amount'], call.from_user.id)
+        except ValueError:  # if not enough balance
+            await call.message.answer('Недостаточно денег на балансе бота!')
+            await call.message.answer('Введите сумму пополнения или выберите из популярных', reply_markup=button_price)
+            return await FSMselectMarket.previous()
+    elif data["payment_via"] == 'qiwi':
+        
     
     await send_offer_all_admin(data["user_login"], data["amount"], data["payment_via"])
     await state.finish()
