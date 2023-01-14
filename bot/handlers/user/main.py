@@ -10,7 +10,7 @@ from bot import main
 from bot.database.sqlite_db import get_admin_id, unbalance
 from bot.keyboards.inline import button_price, top_up_balance_steam, way_of_payment
 from bot.keyboards.reply import open_market_kb, start_kb
-from bot.handlers.user.different import send_all_admin
+from bot.handlers.user.different import send_offer_all_admin
 
 class FSMselectMarket(StatesGroup):
     set_login = State()
@@ -73,22 +73,8 @@ async def select_payment(call: types.CallbackQuery, state: FSMContext):
         await call.message.answer('Введите сумму пополнения или выберите из популярных', reply_markup=button_price)
         return await FSMselectMarket.previous()
     
-    list_admin = await get_admin_id()
-    for admin_id in list_admin:
-        await main.bot.send_message(admin_id, f'{data["user_login"]}, {data["amount"]}, {data["payment_via"]}')
+    await send_offer_all_admin(data["user_login"], data["amount"], data["payment_via"])
     await state.finish()
-
-
-async def payment_via_balance(how_much: str, user_id: str, call: types.CallbackQuery):
-    try:
-        await unbalance(how_much, call.from_user.id)
-    except ValueError:  # if not enough balance
-        await call.message.answer('Недостаточно денег на балансе бота!')
-        await call.message.answer('Введите сумму пополнения или выберите из популярных', reply_markup=button_price)
-        return await FSMselectMarket.previous()
-
-
-async def send_all_admin(text)
 
 
 def register_user_handlers(dp: Dispatcher):
