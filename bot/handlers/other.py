@@ -1,9 +1,8 @@
 from aiogram import Dispatcher
 from aiogram.types import Message
 
-from bot.keyboards.reply import start_kb
-
 from bot.database.sqlite_db import create_profile
+from bot.keyboards.reply import start_kb
 
 
 async def bot_start(msg: Message):
