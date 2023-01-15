@@ -40,12 +40,14 @@ async def go_to_menu(msg: types.Message, state: FSMContext):
          
 async def open_market(call: types.CallbackQuery):
     await FsmMarket.set_trade_link.set()
+    await main.bot.delete_message(call.message.chat.id, call.message.message_id)
     await call.message.answer('Для продолжения операции отправьте вашу трейд ссылку следующим сообщением',
                               reply_markup=select_type_market_kb)
 
 
 async def close_market(call: types.CallbackQuery):
     await FsmMarket.set_login.set()
+    await main.bot.delete_message(call.message.chat.id, call.message.message_id)
     await call.message.answer('Введите логин Steam.\n(Что такое логин, можно узнать во вкладке FAQ)',
                               reply_markup=go_to_main_menu)
 
