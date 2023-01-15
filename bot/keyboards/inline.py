@@ -1,7 +1,7 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, \
     KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
     
-
+"""--------------Top up balance steam---------------"""
 top_up_balance_steam = InlineKeyboardMarkup(row_width=2).add(
     InlineKeyboardButton("Открыта", callback_data='open_market'),
     InlineKeyboardButton('Закрыта', callback_data='close_market'),
@@ -18,7 +18,7 @@ button_price = InlineKeyboardMarkup(row_width=3).add(
 
 way_of_payment = InlineKeyboardMarkup(row_width=1).add(
     InlineKeyboardButton('Баланс бота', callback_data='bot'),
-    InlineKeyboardButton('Qiwi', callback_data='qiwi')
+    InlineKeyboardButton('Qiwi', callback_data='qiwi'),
 )
 
 
@@ -31,4 +31,6 @@ def qiwi_menu(is_url=True, url="", bill="") -> InlineKeyboardMarkup:
     check_qiwi = InlineKeyboardButton('Проверить оплату', callback_data='check_' + str(bill))
     qiwi_kb.insert(check_qiwi)
     return qiwi_kb
-    
+
+
+"""-------------------------------------------------"""
