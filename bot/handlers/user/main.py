@@ -57,7 +57,7 @@ async def close_market(call: types.CallbackQuery):
 
 
 async def set_link(msg: types.Message, state: FSMContext):
-    if msg.text == "Где взять трейд ссылку?":
+    if msg.text == "Где взять трейд-ссылку?":
         await msg.answer("https://www.youtube.com/watch?v=w3-eDOaOjx8")
         await msg.answer('Для продолжения операции отправьте вашу трейд-ссылку следующим сообщением',
                          reply_markup=go_to_main_menu)
@@ -70,8 +70,8 @@ async def set_link(msg: types.Message, state: FSMContext):
         await msg.answer('Введите сумму пополнения или выберите из популярных',
                          reply_markup=button_price)
     else:
-        await msg.edit_text("Неправильная трейд-ссылка!\nОтправьте ссылку в правильном формате",
-                            reply_markup=select_type_market_kb)
+        await msg.answer("Неправильная трейд-ссылка!\nОтправьте ссылку в правильном формате",
+                         reply_markup=select_type_market_kb)
         return
         
 
@@ -128,21 +128,20 @@ async def select_payment(call: types.CallbackQuery, state: FSMContext):
             return await FsmMarket.previous()
         
         await state.finish()
-        print("sdfsd")
         await call.message.answer("Заявка подана, ждите пополнения",
                                   reply_markup=start_kb)
         
-        async with state.proxy() as data:  # send all admin
-            if data["link_or_login"][:5] == "Трейд":
-                login_or_link = data["link_or_login"][:5].split('"')[1]
-            else:
-                login_or_link = data["link_or_login"][:5].split(" ")[1]
+        # send all admin
+        if data["link_or_login"][:5] == "Трейд":
+            login_or_link = data["link_or_login"].split(" ")[1]
+        else:
+            login_or_link = data["link_or_login"].split(" ")[1]
+        
+        text_for_admin = (f"_❗Заявка на пополнение_\n"
+                          f"Пополнение: `{login_or_link}`\n"
+                          f"Через {data['payment_via']} на ***{data['amount']}руб***")
             
-            text_for_admin = (f"_❗Заявка на пополнение_\n"
-                              f"Пополнение: `{login_or_link}`\n"
-                              f"Через {data['amount']} на ***{data['payment_via']}руб***")
-            
-            await send_message_all_admin(text_for_admin)
+        await send_message_all_admin(text_for_admin)
             
     elif data["payment_via"] == 'qiwi':
         comment = str(call.from_user.id) + "_" + str(random.randint(10000, 99999))
