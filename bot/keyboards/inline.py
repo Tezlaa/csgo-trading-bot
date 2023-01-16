@@ -33,4 +33,29 @@ def qiwi_menu(is_url=True, url="", bill="") -> InlineKeyboardMarkup:
     return qiwi_kb
 
 
+"""--------------------Balance out------------------"""
+balance_out_start = InlineKeyboardMarkup(row_width=1).add(
+    InlineKeyboardButton("Я хочу продать кейсы", callback_data="want_sell"),
+    InlineKeyboardButton("Я хочу вывести баланс из Steam", callback_data="want_balance_out_from_steam"),
+)
+
+wont_to_balance_out_on_steam = InlineKeyboardMarkup(row_width=2).add(
+    InlineKeyboardButton("Вывести ключ(и)", callback_data='out_key'),
+    InlineKeyboardButton("Назад", callback_data='cancel_trade'),
+)
+
+check_on_trade = InlineKeyboardMarkup(row_width=1).add(
+    InlineKeyboardButton("Проверить", callback_data='check_trade'),
+    InlineKeyboardButton("Отмена", callback_data="cancel_trade"),
+)
+
+go_to_balance_out_start = InlineKeyboardMarkup(row_width=1).add(
+    InlineKeyboardButton("Вернуться в меню", callback_data="cancel_trade"),
+)
+
+sell_case_start = InlineKeyboardMarkup(row_width=1).add(
+    InlineKeyboardButton("Выбрать кейсы", callback_data='select_case'),
+)
+
+
 """-------------------------------------------------"""

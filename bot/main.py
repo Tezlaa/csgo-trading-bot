@@ -1,3 +1,4 @@
+import logging
 import os
 
 from aiogram import Bot, Dispatcher
@@ -17,6 +18,8 @@ async def __on_start_up(dp: Dispatcher) -> None:
 
 def start_bot():
     global bot, p2p_qiwi
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
+    
     bot = Bot(token=os.getenv("TOKEN"), parse_mode='HTML')
     dp = Dispatcher(bot, storage=MemoryStorage())
     p2p_qiwi = QiwiP2PClient(secret_p2p=os.getenv("TOKEN_QIWI"))

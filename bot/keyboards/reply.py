@@ -11,10 +11,21 @@ start_kb = ReplyKeyboardMarkup(resize_keyboard=True).add(
 
 """menu: TOP UP BALANCE STEAME"""
 select_type_market_kb = ReplyKeyboardMarkup(resize_keyboard=True, row_width=1).add(
-    KeyboardButton('Где взять трейд ссылку?'),
+    KeyboardButton('Где взять трейд-ссылку?'),
     KeyboardButton('Главное меню'),
 )
 
 go_to_main_menu = ReplyKeyboardMarkup(resize_keyboard=True, row_width=1).add(
     KeyboardButton('Главное меню'),
+)
+
+"""menu: BALANCE OUT"""
+wont_to_balance_out_on_steam = ReplyKeyboardMarkup(resize_keyboard=True, row_width=1).add(
+    KeyboardButton("Вывести ключ(и)"),
+    KeyboardButton("Назад"),
+)
+
+back_kb = ReplyKeyboardMarkup(resize_keyboard=True, row_width=1).add(
+    KeyboardButton('Главное меню'),
+    KeyboardButton("Назад"),
 )
