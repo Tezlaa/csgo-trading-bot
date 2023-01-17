@@ -43,8 +43,7 @@ class FsmSelectCase(StatesGroup):
     
 class FsmTopUpBot(StatesGroup):
     set_amount = State()
-    payment = State()
-
+    
 
 """top up balance steam"""
 
@@ -172,9 +171,10 @@ async def select_payment(call: types.CallbackQuery, state: FSMContext):
             data["bill"] = bill
         
         await call.message.edit_text(f'Отправьте {data["amount"]}руб на счёт QIWI\n'
-                                     f'Ссылка: {bill.pay_url}\n'
-                                     f'Указав в комментарии к оплате: {comment}',
-                                     reply_markup=inline.qiwi_menu(url=bill.pay_url, bill=bill.id))
+                                     f'Указав в комментарии к оплате: {comment}\n'
+                                     f'<a href="{bill.pay_url}">ССЫЛКА</a>',
+                                     reply_markup=inline.qiwi_menu(url=bill.pay_url, bill=bill.id),
+                                     parse_mode="HTML")
         
         await FsmMarket.next()
 
@@ -368,6 +368,8 @@ async def set_message_by_user_sell_case(msg: types.Message, state: FSMContext):
 
 
 """Profile"""
+
+
 async def get_profile(msg: types.Message):
     if type(msg) == types.CallbackQuery:
         msg = msg.message
@@ -405,14 +407,65 @@ async def set_how_much_top_up(msg: types.Message, state: FSMContext):
 
     await msg.answer("Выберите наиболее удобный для вас способ оплаты: ",
                      reply_markup=inline.select_way_of_payment_bot)
-    await FsmTopUpBot.next()
 
 
 async def top_up_balance_bot_via_qiwi(call: types.CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
-        await call.message.answer(f'Теперь осталось оплатить счёт на {data["amount"]}руб\n'
-                                  f'После оплаты бот автоматически зачислит сумму на ваш баланс.',
-                                  reply_markup=inline.info_about_buy) 
+        await call.message.edit_text(f'Теперь осталось оплатить счёт на {data["amount"]}руб\n'
+                                     f'После оплаты бот автоматически зачислит сумму на ваш баланс.',
+                                     reply_markup=inline.info_about_buy)
+
+        
+async def top_up_balance_bot_via_qiwi_manually(call: types.CallbackQuery, state: FSMContext):
+    async with state.proxy() as data:
+        await call.message.edit_text(f'Отправьте {data["amount"]} на Qiwi:\n'
+                                     f'Номер кошелька: `+79173670708`\n'
+                                     f'После оплаты отправьте нам скриншот чека',
+                                     parse_mode='MARKDOWN')
+
+
+async def set_cheque(msg: types.Message, state: FSMContext):
+    pass
+
+
+async def go_to_payment_via_qiwi(call: types.CallbackQuery, state: FSMContext):
+    async with state.proxy() as data:
+        pass
+    comment = str(call.from_user.id) + "_" + str(random.randint(10000, 99999))
+        
+    bill = await main.p2p_qiwi.create_p2p_bill(amount=data['amount'],
+                                               expire_at=(datetime.now() + timedelta(minutes=3)),
+                                               comment=comment)
+    async with state.proxy() as data:
+        data["bill"] = bill
+    
+    await call.message.edit_text(f'Отправьте <b>{data["amount"]}</b>руб на счёт QIWI\n'
+                                 f'Указав в комментарии к оплате: <b>{comment}</b>\n'
+                                 f'<a href="{bill.pay_url}">ССЫЛКА</a>',
+                                 reply_markup=inline.qiwi_menu(url=bill.pay_url, bill=bill.id),
+                                 parse_mode="HTML")
+
+
+async def check_on_payment(call: types.CallbackQuery, state: FSMContext):
+    async with state.proxy() as data:
+        bill: Bill = data.get("bill")
+    
+    if await main.p2p_qiwi.check_if_bill_was_paid(bill):
+        
+        username = call.from_user.username
+        if username == "None":
+            username = call.from_user.first_name
+        
+        text_for_admin = (f"_❗Пополнение_\n"
+                          f"User: `{username}`\n"
+                          f"Через qiwi на ***{data['amount']}руб***")
+        
+        await send_message_all_admin(text_for_admin)
+        await call.message.edit_text('Пополение успешно', reply_markup=start_kb)
+        
+        await state.finish()
+    else:
+        await call.message.answer('Вы не оплатили счёт', reply_markup=inline.qiwi_menu(is_url=False, bill=bill.id))
 
 
 def register_user_handlers(dp: Dispatcher):
@@ -437,23 +490,24 @@ def register_user_handlers(dp: Dispatcher):
     dp.register_callback_query_handler(balance_out_from_steam, text="want_balance_out_from_steam")
     dp.register_callback_query_handler(out_key, text='out_key')
     dp.register_callback_query_handler(check_user_on_trade, text='check_trade')
-    dp.register_message_handler(set_name_steam,
-                                state=FsmWantOutBalanceFromSteam.name_steam)
-    dp.register_message_handler(set_message_by_user,
-                                state=FsmWantOutBalanceFromSteam.other_data_for_offer)
+    dp.register_message_handler(set_name_steam, state=FsmWantOutBalanceFromSteam.name_steam)
+    dp.register_message_handler(set_message_by_user, state=FsmWantOutBalanceFromSteam.other_data_for_offer)
     dp.register_callback_query_handler(sell_case, text='want_sell')
     dp.register_callback_query_handler(set_case, text='select_case', state=FsmSelectCase)
     dp.register_callback_query_handler(set_how_case, text_contains='case_', state=FsmSelectCase.witch_case)
     dp.register_callback_query_handler(info_about_adding, text_contains="count_", state=FsmSelectCase.how_much)
     dp.register_callback_query_handler(adding_case_path, text=['go_to_out_case', 'add_case'], state=FsmSelectCase)
     dp.register_callback_query_handler(check_trade_sell_case, text='check_trade', state=FsmSelectCase)
-    dp.register_message_handler(set_name_steam_sell_case,
-                                state=FsmSelectCase.name_steam)
-    dp.register_message_handler(set_message_by_user_sell_case,
-                                state=FsmSelectCase.other_data_for_offer)
+    dp.register_message_handler(set_name_steam_sell_case, state=FsmSelectCase.name_steam)
+    dp.register_message_handler(set_message_by_user_sell_case, state=FsmSelectCase.other_data_for_offer)
+    
     """profile"""
     dp.register_message_handler(get_profile, Text(equals='Профиль'))
     dp.register_message_handler(referal_sistem, Text(equals='Реферальная система'))
     dp.register_message_handler(top_up_balance_bot, Text(equals='Пополнить баланс'))
     dp.register_message_handler(set_how_much_top_up, state=FsmTopUpBot.set_amount)
-    dp
+    dp.register_callback_query_handler(top_up_balance_bot_via_qiwi, text='qiwi', state=FsmTopUpBot)
+    dp.register_callback_query_handler(top_up_balance_bot_via_qiwi_manually, text='payment_of_manually',
+                                       state=FsmTopUpBot)
+    dp.register_callback_query_handler(go_to_payment_via_qiwi, text='go_to_payment', state=FsmTopUpBot)
+    dp.register_callback_query_handler(check_on_payment, text_contains="check_", state=FsmTopUpBot)

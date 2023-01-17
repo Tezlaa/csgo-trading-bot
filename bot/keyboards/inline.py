@@ -93,5 +93,5 @@ select_way_of_payment_bot = InlineKeyboardMarkup(row_width=1).add(
 
 info_about_buy = InlineKeyboardMarkup(row_width=1).add(
     InlineKeyboardButton("Перейти к оплате", callback_data='go_to_payment'),
-    InlineKeyboardButton("Перевести вручную", callback_data='payment_of_arms'),
+    InlineKeyboardButton("Перевести вручную", callback_data='payment_of_manually'),
 )
