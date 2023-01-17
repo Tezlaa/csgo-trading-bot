@@ -9,11 +9,11 @@ from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from bot import main
-from bot.database.sqlite_db import get_admin_id, unbalance
+from bot.database.sqlite_db import get_admin_id, unbalance, get_balance_user, get_all_top_up
 from bot.handlers.user.different import get_all_price_case, get_case, get_text_with_all_case,\
     send_message_all_admin
 from bot.keyboards import inline
-from bot.keyboards.reply import back_kb, go_to_main_menu, select_type_market_kb, start_kb
+from bot.keyboards.reply import back_kb, go_to_main_menu, select_type_market_kb, start_kb, menu_profile
 
 from glQiwiApi import QiwiP2PClient
 from glQiwiApi.qiwi.clients.p2p.types import Bill
@@ -39,6 +39,11 @@ class FsmSelectCase(StatesGroup):
     how_much = State()
     name_steam = State()
     other_data_for_offer = State()
+    
+    
+class FsmTopUpBot(StatesGroup):
+    set_amount = State()
+    payment = State()
 
 
 """top up balance steam"""
@@ -362,6 +367,54 @@ async def set_message_by_user_sell_case(msg: types.Message, state: FSMContext):
     await send_message_all_admin(text_for_admin)
 
 
+"""Profile"""
+async def get_profile(msg: types.Message):
+    if type(msg) == types.CallbackQuery:
+        msg = msg.message
+    elif msg.text != "Назад":
+        await msg.answer("Профиль", reply_markup=back_kb)
+    
+    user_id = msg.from_user.id
+    await msg.answer(f'id: {user_id}\n'
+                     f'Баланс: {await get_balance_user(user_id)}руб\n'
+                     f'Всего пополнено: {await get_all_top_up(user_id)}руб', reply_markup=menu_profile)
+
+
+async def referal_sistem(msg: types.Message):
+    pass
+
+
+async def top_up_balance_bot(msg: types.Message):
+    await FsmTopUpBot.set_amount.set()
+    await msg.answer("Введите сумму, которую вы хотите пополнить на баланс")
+
+
+async def set_how_much_top_up(msg: types.Message, state: FSMContext):
+    try:
+        if int(msg.text) > 0:
+            async with state.proxy() as data:
+                data["amount"] = msg.text
+        else:
+            await msg.answer("Введите число больше нуля\n"
+                             "Введите сумму, которую вы хотите пополнить на баланс")
+            return
+    except Exception:  # need check
+        await msg.answer("Введите число!\n"
+                         "Введите сумму, которую вы хотите пополнить на баланс")
+        return
+
+    await msg.answer("Выберите наиболее удобный для вас способ оплаты: ",
+                     reply_markup=inline.select_way_of_payment_bot)
+    await FsmTopUpBot.next()
+
+
+async def top_up_balance_bot_via_qiwi(call: types.CallbackQuery, state: FSMContext):
+    async with state.proxy() as data:
+        await call.message.answer(f'Теперь осталось оплатить счёт на {data["amount"]}руб\n'
+                                  f'После оплаты бот автоматически зачислит сумму на ваш баланс.',
+                                  reply_markup=inline.info_about_buy) 
+
+
 def register_user_handlers(dp: Dispatcher):
     """top up balance steam"""
     dp.register_message_handler(top_up_steam, Text(equals='Пополнить баланс steam'))
@@ -398,4 +451,9 @@ def register_user_handlers(dp: Dispatcher):
                                 state=FsmSelectCase.name_steam)
     dp.register_message_handler(set_message_by_user_sell_case,
                                 state=FsmSelectCase.other_data_for_offer)
-    
+    """profile"""
+    dp.register_message_handler(get_profile, Text(equals='Профиль'))
+    dp.register_message_handler(referal_sistem, Text(equals='Реферальная система'))
+    dp.register_message_handler(top_up_balance_bot, Text(equals='Пополнить баланс'))
+    dp.register_message_handler(set_how_much_top_up, state=FsmTopUpBot.set_amount)
+    dp

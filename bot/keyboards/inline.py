@@ -85,4 +85,13 @@ def get_case_inline_kb(case: dict) -> InlineKeyboardMarkup:
     return keyboard
     
 
-"""-------------------------------------------------"""
+"""---------------------Top up balance bot-------------------"""
+select_way_of_payment_bot = InlineKeyboardMarkup(row_width=1).add(
+    InlineKeyboardButton("QIWI", callback_data='qiwi'),
+    InlineKeyboardButton("Другое", callback_data='other_way_of_payment'),
+)
+
+info_about_buy = InlineKeyboardMarkup(row_width=1).add(
+    InlineKeyboardButton("Перейти к оплате", callback_data='go_to_payment'),
+    InlineKeyboardButton("Перевести вручную", callback_data='payment_of_arms'),
+)

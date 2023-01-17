@@ -29,3 +29,10 @@ back_kb = ReplyKeyboardMarkup(resize_keyboard=True, row_width=1).add(
     KeyboardButton('Главное меню'),
     KeyboardButton("Назад"),
 )
+
+"""menu: Profile"""
+menu_profile = ReplyKeyboardMarkup(resize_keyboard=True, row_width=1).add(
+    KeyboardButton("Реферальная система"),
+    KeyboardButton("Пополнить баланс"),
+    KeyboardButton("Главное меню"),
+)
