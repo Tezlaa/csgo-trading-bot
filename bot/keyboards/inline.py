@@ -57,5 +57,32 @@ sell_case_start = InlineKeyboardMarkup(row_width=1).add(
     InlineKeyboardButton("Выбрать кейсы", callback_data='select_case'),
 )
 
+select_path_kb = InlineKeyboardMarkup(row_width=2).add(
+    InlineKeyboardButton("Вывести", callback_data="go_to_out_case"),
+    InlineKeyboardButton("Добавить кейсы", callback_data='add_case'),
+)
+
+check_on_trade_sell_case = InlineKeyboardMarkup(row_width=1).add(
+    InlineKeyboardButton("Проверить", callback_data='check_trade'),
+    InlineKeyboardButton("Главное меню", callback_data="go_to_menu"),
+)
+
+
+def count_case():
+    number_case = InlineKeyboardMarkup(row_width=8)
+    for number in range(1, 16):
+        number_case.insert(InlineKeyboardButton(number, callback_data='count_' + str(number)))
+    
+    return number_case
+
+
+def get_case_inline_kb(case: dict) -> InlineKeyboardMarkup:
+    keyboard = InlineKeyboardMarkup(row_width=1)
+    
+    for name in case.keys():
+        keyboard.add(InlineKeyboardButton(f'«{name}»', callback_data='case_' + name))
+    
+    return keyboard
+    
 
 """-------------------------------------------------"""

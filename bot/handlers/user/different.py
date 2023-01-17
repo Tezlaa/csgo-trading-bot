@@ -6,8 +6,8 @@ from datetime import datetime
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, \
     KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
-from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
+from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 
@@ -33,10 +33,21 @@ async def get_text_with_all_case() -> str:
     
     text = ""
     for item, price in case.items():
-        text += f"Кейс: {item} - {price}руб\n"
+        text += f"Кейс: '{item}' - {price}руб\n"
     
     return text
+
+
+async def get_all_price_case(all_case_from_user: dict, price_on_case: dict) -> int:
+    price = 0
+    for all_case in all_case_from_user:
+        for case, count in all_case.items():
+            for case_dp, price_dp in price_on_case.items():
+                if case == case_dp:
+                    price += (count * price_dp)
     
+    return price
+            
 
 async def payment_p2p_qiwi(call: types.CallbackQuery, data: dict):
     comment = str(call.from_user.id) + "_" + str(random.randint(1000, 9999))
@@ -48,5 +59,6 @@ async def payment_p2p_qiwi(call: types.CallbackQuery, data: dict):
     
     
 def get_case() -> dict:
-    case = {"Призма": 5, "Решающий момент": 2}
+    case = {"Грёзы и кошмары": 5, "Решающий момент": 2, "Змеиный укус": 3, "Разлом": 4,
+            "Расколотая сеть": 7, "Спектр": 2, "Хромированный кейс №3": 6}
     return case
