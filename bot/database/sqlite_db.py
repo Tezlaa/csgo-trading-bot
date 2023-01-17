@@ -45,7 +45,7 @@ async def get_balance_user(user_id: str) -> int:
 
 async def get_all_top_up(user_id: str) -> int:
     all_top_up = int(cur.execute(f"SELECT all_top_up_balance FROM profile WHERE user_id = {user_id}").fetchone()[0])
-    return all_top_up 
+    return all_top_up
     
 
 async def unbalance(how_much: str, user_id: str):
@@ -60,6 +60,8 @@ async def unbalance(how_much: str, user_id: str):
 async def top_up_balance(how_much: str, user_id):
     balance_user = await get_balance_user(user_id)
     top_up = str((balance_user + int(how_much)))
-    cur.execute("UPDATE profile SET balance=? AND all_top_up_balance=? WHERE user_id=?",
-                (top_up, top_up, user_id))
+    cur.execute("UPDATE profile SET balance=? WHERE user_id=?",
+                (top_up, user_id))
+    cur.execute("UPDATE profile SET all_top_up_balance=? WHERE user_id=?",
+                (top_up, user_id))
     base.commit()

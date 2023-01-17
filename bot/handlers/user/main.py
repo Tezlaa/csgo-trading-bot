@@ -11,7 +11,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from bot import main
 from bot.database.sqlite_db import get_admin_id, unbalance, get_balance_user, get_all_top_up
 from bot.handlers.user.different import get_all_price_case, get_case, get_text_with_all_case,\
-    send_message_all_admin
+    send_message_all_admin, check_cheque
 from bot.keyboards import inline
 from bot.keyboards.reply import back_kb, go_to_main_menu, select_type_market_kb, start_kb, menu_profile
 
@@ -43,7 +43,8 @@ class FsmSelectCase(StatesGroup):
     
 class FsmTopUpBot(StatesGroup):
     set_amount = State()
-    
+    cheque = State()
+
 
 """top up balance steam"""
 
@@ -425,8 +426,24 @@ async def top_up_balance_bot_via_qiwi_manually(call: types.CallbackQuery, state:
 
 
 async def set_cheque(msg: types.Message, state: FSMContext):
-    pass
-
+    async with state.proxy() as data:
+        data["cheque"] = msg.photo[-1].file_id
+        
+    username = msg.from_user.username
+    if username == "None":
+        username = msg.from_user.first_name
+    
+    text_for_admin = (f"_❗Пополнение_\n"
+                      f"User: `{username}`\n"
+                      f"Через qiwi на ***{data['amount']}руб***\n"
+                      f"Чек пользователя: ")
+    await send_message_all_admin(text_for_admin)
+    await check_cheque(data["cheque"], data["amount"], msg.from_user.id)
+    await msg.answer('Заявка подана, ждите пополнения, проверка занимает до 24 часов',
+                     reply_markup=start_kb)
+    
+    await state.finish()
+    
 
 async def go_to_payment_via_qiwi(call: types.CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
@@ -509,5 +526,6 @@ def register_user_handlers(dp: Dispatcher):
     dp.register_callback_query_handler(top_up_balance_bot_via_qiwi, text='qiwi', state=FsmTopUpBot)
     dp.register_callback_query_handler(top_up_balance_bot_via_qiwi_manually, text='payment_of_manually',
                                        state=FsmTopUpBot)
+    dp.register_message_handler(set_cheque, content_types=["photo"], state=FsmTopUpBot)
     dp.register_callback_query_handler(go_to_payment_via_qiwi, text='go_to_payment', state=FsmTopUpBot)
     dp.register_callback_query_handler(check_on_payment, text_contains="check_", state=FsmTopUpBot)

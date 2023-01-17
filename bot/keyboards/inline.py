@@ -95,3 +95,12 @@ info_about_buy = InlineKeyboardMarkup(row_width=1).add(
     InlineKeyboardButton("Перейти к оплате", callback_data='go_to_payment'),
     InlineKeyboardButton("Перевести вручную", callback_data='payment_of_manually'),
 )
+
+
+def check_cheque_admin(how_much: str, id_user: str, message_id: str):
+    check_cheque_admin_kb = InlineKeyboardMarkup(row_width=1).add(
+        InlineKeyboardButton("Чек в порядке, зачислить на баланс " + how_much + "руб",
+                             callback_data=f'GoodCheque_{id_user}_{how_much}_{message_id}'),
+        InlineKeyboardButton("Отмена", callback_data=f'NotOkCheque_{id_user}_{how_much}_{message_id}'),
+    )
+    return check_cheque_admin_kb
