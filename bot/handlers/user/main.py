@@ -9,7 +9,8 @@ from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from bot import main
-from bot.database.sqlite_db import get_admin_id, unbalance, get_balance_user, get_all_top_up
+from bot.database.sqlite_db import get_admin_id, unbalance, get_balance_user, get_all_top_up,\
+    count_ref
 from bot.handlers.user.different import get_all_price_case, get_case, get_text_with_all_case,\
     send_message_all_admin, check_cheque
 from bot.keyboards import inline
@@ -221,7 +222,7 @@ async def balance_out(msg: types.Message):
 
 async def balance_out_from_steam(call: types.CallbackQuery, state: FsmWantOutBalanceFromSteam):
     await call.message.edit_text('Вы должны купить и передать нам Mann Co. Supply Crate Key из Team Fortress 2.'
-                                 'За каждый ключ вы получите 112Р.', reply_markup=inline.wont_to_balance_out_on_steam)
+                                 'За каждый ключ вы получите 96Р.', reply_markup=inline.wont_to_balance_out_on_steam)
 
 
 async def out_key(call: types.CallbackQuery):  # need link on trade
@@ -252,9 +253,7 @@ async def set_message_by_user(msg: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data["message_by_user"] = msg.text
     
-    username = msg.from_user.username
-    if username == "None":
-        username = msg.from_user.first_name
+    username = msg.from_user.username if msg.from_user.username != "None" else msg.from_user.first_name
     
     text_for_admin = (f"_❗Заявка на вывод ключей_\n"
                       f"Nickname steam: `{data['name_steam']}`\n"
@@ -344,9 +343,7 @@ async def set_message_by_user_sell_case(msg: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data["message_by_user"] = msg.text
     
-    username = msg.from_user.username
-    if username == "None":
-        username = msg.from_user.first_name
+    username = msg.from_user.username if msg.from_user.username != "None" else msg.from_user.first_name
         
     price_all_case = await get_all_price_case(data['all_case'], get_case())
     text_with_all_case = ""
@@ -384,7 +381,11 @@ async def get_profile(msg: types.Message):
 
 
 async def referal_sistem(msg: types.Message):
-    pass
+    name_bot = (await main.bot.get_me()).username
+    await msg.answer(f"Вы получаете 3% с пополнения по вашей реферальной ссылке\n\n"
+                     f"Приглашайте друзей и зарабатывайте, распространяя свою персональную ссылку:\n"
+                     f"<em>https://t.me/{name_bot}?start={msg.from_user.id}\n\n</em>"
+                     f'Количество ваших рефералов: <b>{await count_ref(msg.from_user.id)}</b>')
 
 
 async def top_up_balance_bot(msg: types.Message):
@@ -429,9 +430,7 @@ async def set_cheque(msg: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data["cheque"] = msg.photo[-1].file_id
         
-    username = msg.from_user.username
-    if username == "None":
-        username = msg.from_user.first_name
+    username = msg.from_user.username if msg.from_user.username != "None" else msg.from_user.first_name
     
     text_for_admin = (f"_❗Пополнение_\n"
                       f"User: `{username}`\n"
@@ -469,9 +468,7 @@ async def check_on_payment(call: types.CallbackQuery, state: FSMContext):
     
     if await main.p2p_qiwi.check_if_bill_was_paid(bill):
         
-        username = call.from_user.username
-        if username == "None":
-            username = call.from_user.first_name
+        username = call.from_user.username if call.from_user.username != "None" else call.from_user.first_name
         
         text_for_admin = (f"_❗Пополнение_\n"
                           f"User: `{username}`\n"

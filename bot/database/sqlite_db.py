@@ -18,16 +18,21 @@ async def sql_start():
         name TEXT,
         balance INTEGER,
         all_top_up_balance INTEGER,
+        ref TEXT,
         admin INTEGER
         )""")
     base.commit()
 
 
-async def create_profile(user_id, username):
+async def create_profile(user_id, username, referal=None):
     user = cur.execute(f'SELECT 1 FROM profile WHERE user_id == {user_id}').fetchone()
     if not user:
-        cur.execute("INSERT INTO profile VALUES(?, ?, ?, ?, ?)", (user_id, username, 15, 0, 0))
+        cur.execute("INSERT INTO profile VALUES(?, ?, ?, ?, ?, ?)", (user_id, username, 15, 0, referal, 0))
         base.commit()
+
+
+async def count_ref(user_id: str):
+    return cur.execute("SELECT COUNT(?) as count FROM profile WHERE ref =?", (user_id, user_id)).fetchone()[0]
 
 
 async def get_admin_id() -> list:
@@ -57,7 +62,12 @@ async def unbalance(how_much: str, user_id: str):
         raise ValueError()  # if not enough balance
     
 
-async def top_up_balance(how_much: str, user_id):
+async def top_up_balance(how_much: str, user_id: str):
+    ref_link = str(cur.execute(f"SELECT ref FROM profile WHERE user_id = {user_id}").fetchone()[0])
+    if ref_link != "None":
+        top_up_user_ref = await get_balance_user(ref_link) + ((int(how_much) * 3) / 100)
+        cur.execute("UPDATE profile SET balance=? WHERE user_id=?", (top_up_user_ref, ref_link))
+        
     balance_user = await get_balance_user(user_id)
     top_up = str((balance_user + int(how_much)))
     cur.execute("UPDATE profile SET balance=? WHERE user_id=?",
