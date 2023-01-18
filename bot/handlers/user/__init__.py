@@ -1,1 +1,4 @@
+from .balance_out_menu import register_balance_out_handlers
 from .main import register_user_handlers
+from .profile_menu import register_profile_handlers
+from .top_up_balance_steam_menu import register_top_up_balance_steam_handlers

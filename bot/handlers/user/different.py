@@ -38,7 +38,6 @@ async def check_cheque(photo, how_much: str, id_user: str) -> list:
         msg_id.append((await main.bot.send_message(admin_id, 'Получение...')).message_id)
         await main.bot.delete_message(admin_id, msg_id[index])
         msg_id[index] += len(list_admin)
-        print(len(list_admin))
     for admin_id in list_admin:
         await main.bot.send_photo(admin_id, photo, reply_markup=check_cheque_admin(how_much, id_user, msg_id))
 
