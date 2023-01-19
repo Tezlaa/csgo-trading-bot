@@ -76,12 +76,25 @@ def count_case():
     return number_case
 
 
-def get_case_inline_kb(case: dict) -> InlineKeyboardMarkup:
-    keyboard = InlineKeyboardMarkup(row_width=1)
+def get_case_inline_kb(case: dict, how_much_case=9) -> InlineKeyboardMarkup:
+    if how_much_case == 0:
+        how_much_case = 10 * 10
     
-    for name in case.keys():
-        keyboard.add(InlineKeyboardButton(f'«{name}»', callback_data='case_' + name))
+    keyboard = InlineKeyboardMarkup(row_width=2)
+    len_case = len(case)
     
+    for index, name in enumerate(case.keys()):
+        keyboard.insert(InlineKeyboardButton(f'«{name}»', callback_data='case_' + name))
+        if how_much_case == index:
+            last_case = [name, index]
+            break
+    
+    try:
+        if last_case[1] != len_case:
+            keyboard.add(InlineKeyboardButton('Другие кейсы', callback_data='case_all'))
+    except Exception:
+        pass
+        
     return keyboard
     
 
@@ -104,3 +117,57 @@ def check_cheque_admin(how_much: str, id_user: str, message_id: str):
         InlineKeyboardButton("Отмена", callback_data=f'NotOkCheque_{id_user}_{how_much}_{message_id}'),
     )
     return check_cheque_admin_kb
+
+
+"""---------------------------Trade case-----------------------"""
+select_path_trade_case_kb = InlineKeyboardMarkup(row_width=2).add(
+    InlineKeyboardButton("Выбрать скины", callback_data="go_to_add_skins"),
+    InlineKeyboardButton("Добавить кейсы", callback_data='add_case'),
+)
+
+agree_or_no = InlineKeyboardMarkup(row_width=2).add(
+    InlineKeyboardButton("Подтверить", callback_data="agree"),
+    InlineKeyboardButton("Отменить", callback_data="not_agree"),
+)
+
+before_adding_skin = InlineKeyboardMarkup(row_width=1).add(
+    InlineKeyboardButton("Добавить скины", callback_data="go_to_add_skins"),
+    InlineKeyboardButton("Перейти к обмену", callback_data="go_to_trade"),
+)
+
+no_money_for_add_skin = InlineKeyboardMarkup(row_width=2).add(
+    InlineKeyboardButton("Перейти к обмену", callback_data="go_to_trade"),
+    InlineKeyboardButton("Добавить кейсы", callback_data='add_case'),
+)
+
+
+def select_skin_kb(how_much_price_case: str, all_skin_for_trade: dict, how_much_skin=10):
+    if how_much_skin == 0:
+        how_much_skin = 10 * 10
+    
+    skin_kb = InlineKeyboardMarkup(row_width=2)
+    len_skin = len(all_skin_for_trade)
+    
+    index = 1
+    for skin, price in all_skin_for_trade.items():
+        if price < how_much_price_case:
+            skin_kb.insert(
+                KeyboardButton(skin, callback_data=f'skin_{skin}'),
+            )
+            if how_much_skin == index:
+                last_skin = [skin, index]
+                break
+            index += 1
+        
+    if len(skin_kb.inline_keyboard) == 0:
+        raise ZeroDivisionError
+    
+    try:
+        if last_skin[1] != len_skin:
+            skin_kb.add(InlineKeyboardButton('Другие скрины', callback_data='skin_all'))
+    except Exception:
+        pass
+    
+    skin_kb.add(InlineKeyboardButton("Добавить кейс", callback_data="add_case"))
+    
+    return skin_kb

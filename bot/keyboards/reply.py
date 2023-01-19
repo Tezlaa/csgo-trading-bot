@@ -36,3 +36,5 @@ menu_profile = ReplyKeyboardMarkup(resize_keyboard=True, row_width=1).add(
     KeyboardButton("Пополнить баланс"),
     KeyboardButton("Главное меню"),
 )
+
+"""menu: Trade case"""

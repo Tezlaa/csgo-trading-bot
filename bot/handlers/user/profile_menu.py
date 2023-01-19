@@ -54,7 +54,7 @@ async def set_how_much_top_up(msg: types.Message, state: FSMContext):
             await msg.answer("Введите число больше нуля\n"
                              "Введите сумму, которую вы хотите пополнить на баланс")
             return
-    except Exception:  # need check
+    except Exception:
         await msg.answer("Введите число!\n"
                          "Введите сумму, которую вы хотите пополнить на баланс")
         return

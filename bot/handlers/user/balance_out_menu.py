@@ -1,16 +1,8 @@
-import logging
-import os
-import random
-from datetime import datetime, time, timedelta
-
-from aiogram import Bot, Dispatcher, types
+from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
-from bot import main
-from bot.database.sqlite_db import get_admin_id, unbalance, get_balance_user, get_all_top_up,\
-    count_ref
 from bot.handlers.user.different import get_all_price_case, get_case, get_text_with_all_case,\
     send_message_all_admin, check_cheque
 from bot.keyboards import inline
@@ -28,7 +20,7 @@ class FsmWantOutBalanceFromSteam(StatesGroup):
 
 
 class FsmSelectCase(StatesGroup):
-    witch_case = State()
+    which_case = State()
     how_much = State()
     name_steam = State()
     other_data_for_offer = State()
@@ -93,7 +85,7 @@ async def set_message_by_user(msg: types.Message, state: FSMContext):
 
 
 async def sell_case(call: types.CallbackQuery):
-    await FsmSelectCase.witch_case.set()
+    await FsmSelectCase.which_case.set()
     await call.message.edit_text(f"Выберите кейсы из вашего инвентаря\n"
                                  f"{await get_text_with_all_case()}",
                                  reply_markup=inline.sell_case_start)
@@ -104,6 +96,10 @@ async def set_case(call: types.CallbackQuery, state: FSMContext):
 
 
 async def set_how_case(call: types.CallbackQuery, state: FSMContext):
+    if call.data == 'case_all':
+        await call.message.edit_text("Выберите кейс:", reply_markup=inline.get_case_inline_kb(get_case(), 0))
+        return
+    
     case = call.data.split("_")[1]
     async with state.proxy() as data:
         try:
@@ -201,7 +197,7 @@ def register_balance_out_handlers(dp: Dispatcher):
     dp.register_message_handler(set_message_by_user, state=FsmWantOutBalanceFromSteam.other_data_for_offer)
     dp.register_callback_query_handler(sell_case, text='want_sell')
     dp.register_callback_query_handler(set_case, text='select_case', state=FsmSelectCase)
-    dp.register_callback_query_handler(set_how_case, text_contains='case_', state=FsmSelectCase.witch_case)
+    dp.register_callback_query_handler(set_how_case, text_contains='case_', state=FsmSelectCase.which_case)
     dp.register_callback_query_handler(info_about_adding, text_contains="count_", state=FsmSelectCase.how_much)
     dp.register_callback_query_handler(adding_case_path, text=['go_to_out_case', 'add_case'], state=FsmSelectCase)
     dp.register_callback_query_handler(check_trade_sell_case, text='check_trade', state=FsmSelectCase)

@@ -1,4 +1,5 @@
 import logging
+import csv
 import os
 
 from aiogram import Bot, Dispatcher
@@ -17,7 +18,19 @@ async def __on_start_up(dp: Dispatcher) -> None:
 
 
 def start_bot():
-    global bot, p2p_qiwi
+    global bot, p2p_qiwi, case_cs, skin_trade
+
+    case_cs = {}
+    skin_trade = {}
+    with open('case_price.csv', "r", encoding="utf8") as f:
+        reader = csv.reader(f)
+        for case, price in reader:
+            case_cs[case] = int(price)
+    with open('skins.csv', "r", encoding="utf-8") as f:
+        reader = csv.reader(f)
+        for skin, price in reader:
+            skin_trade[skin] = int(price)
+            
     logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
     
     bot = Bot(token=os.getenv("TOKEN"), parse_mode='HTML')

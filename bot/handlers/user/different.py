@@ -1,19 +1,12 @@
-import logging
-import os
 import random
 from datetime import datetime
 
-from aiogram import Bot, Dispatcher, types
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, \
-    KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
-from aiogram.dispatcher.filters import Text
-from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters.state import State, StatesGroup
-
+from aiogram import types
+from aiogram.types import InlineKeyboardButton
 from bot.keyboards.inline import check_cheque_admin
 
 from bot import main
-from bot.database.sqlite_db import get_admin_id, unbalance
+from bot.database.sqlite_db import get_admin_id
 
 import pytz
 
@@ -82,9 +75,11 @@ async def payment_p2p_qiwi(call: types.CallbackQuery, data: dict):
     await call.message.answer(f'Отправьте {data["amount"]}руб на счёт QIWI\n'
                               f'Ссылка: <a href="{bill.pay_url}">ССЫЛКА</a>\n'
                               f'Указанный комментарий к оплате: {comment}', parse_mode="HTML")
-    
+
+
+def get_skin() -> dict:
+    return main.skin_trade
+
     
 def get_case() -> dict:
-    case = {"Грёзы и кошмары": 5, "Решающий момент": 2, "Змеиный укус": 3, "Разлом": 4,
-            "Расколотая сеть": 7, "Спектр": 2, "Хромированный кейс №3": 6}
-    return case
+    return main.case_cs

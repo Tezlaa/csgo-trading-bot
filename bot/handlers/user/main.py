@@ -13,5 +13,5 @@ async def go_to_menu(msg: (types.Message or types.CallbackQuery), state: FSMCont
 
 
 def register_user_handlers(dp: Dispatcher):
-    dp.register_callback_query_handler(go_to_menu, text="go_to_menu", state="*")  # for exit
+    dp.register_callback_query_handler(go_to_menu, text=["go_to_menu", "cancel_trade"], state="*")  # for exit
     dp.register_message_handler(go_to_menu, Text(equals="Главное меню"), state="*")  # for exit
