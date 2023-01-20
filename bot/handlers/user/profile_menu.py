@@ -7,7 +7,7 @@ from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from bot import main
-from bank import bank
+from important import bank
 from bot.database.sqlite_db import count_ref, get_all_top_up, get_balance_user
 from bot.handlers.user.different import check_cheque, send_message_all_admin
 from bot.keyboards import inline

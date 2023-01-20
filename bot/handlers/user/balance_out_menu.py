@@ -3,6 +3,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
+from important import trade_link
 from bot.handlers.user.different import get_all_price_case, get_case, get_text_with_all_case,\
     send_message_all_admin
 from bot.keyboards import inline
@@ -38,8 +39,7 @@ async def balance_out_from_steam(call: types.CallbackQuery, state: FsmWantOutBal
                                  reply_markup=inline.wont_to_balance_out_on_steam)
 
 
-async def out_key(call: types.CallbackQuery):  # need link on trade
-    trade_link = 'https://www.google.com.ua/'
+async def out_key(call: types.CallbackQuery):
     await call.message.edit_text(f'⏳Отправьте обмен по этой <a href="{trade_link}">ССЫЛКА</a>',
                                  parse_mode="HTML", reply_markup=inline.check_on_trade)
     
@@ -125,12 +125,11 @@ async def info_about_adding(call: types.CallbackQuery, state: FSMContext):
                                  reply_markup=inline.select_path_kb)
 
 
-async def adding_case_path(call: types.CallbackQuery, state: FSMContext):  # need trade link
+async def adding_case_path(call: types.CallbackQuery, state: FSMContext):
     if call.data == 'add_case':
         await FsmSelectCase.first()
         await sell_case(call)
     else:
-        trade_link = 'https://www.google.com.ua/'
         async with state.proxy() as data:
             await call.message.edit_text(f"💎После обмена вы получите: "
                                          f"<b>{await get_all_price_case(data['all_case'], get_case())}руб</b>\n\n"
