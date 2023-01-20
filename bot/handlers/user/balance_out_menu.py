@@ -4,14 +4,9 @@ from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from bot.handlers.user.different import get_all_price_case, get_case, get_text_with_all_case,\
-    send_message_all_admin, check_cheque
+    send_message_all_admin
 from bot.keyboards import inline
-from bot.keyboards.reply import back_kb, go_to_main_menu, select_type_market_kb, start_kb, menu_profile
-
-from glQiwiApi import QiwiP2PClient
-from glQiwiApi.qiwi.clients.p2p.types import Bill
-
-import pytz
+from bot.keyboards.reply import back_kb
 
 
 class FsmWantOutBalanceFromSteam(StatesGroup):
@@ -188,7 +183,7 @@ async def set_message_by_user_sell_case(msg: types.Message, state: FSMContext):
 
 def register_balance_out_handlers(dp: Dispatcher):
     dp.register_callback_query_handler(balance_out, text=['cancel_trade'], state="*")
-    dp.register_message_handler(balance_out, Text(equals=['Вывести баланс', 'Назад']))
+    dp.register_message_handler(balance_out, Text(equals=['Вывести баланс', 'Назад']), state="*")
     
     dp.register_callback_query_handler(balance_out_from_steam, text="want_balance_out_from_steam")
     dp.register_callback_query_handler(out_key, text='out_key')

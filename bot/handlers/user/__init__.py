@@ -3,3 +3,5 @@ from .balance_out_menu import register_balance_out_handlers
 from .profile_menu import register_profile_handlers
 from .top_up_balance_steam_menu import register_top_up_balance_steam_handlers
 from .trade_case_menu import register_trade_case_handlers
+from .social_rules_menu import register_social_rules_handlers
+from .game_menu import register_game_handlers

@@ -15,7 +15,7 @@ async def check_is_good(call: types.CallbackQuery):
     for admin_id in await get_admin_id():
         await delete_cheque(admin_id, msg_id, text="Подтверждена!✅")
         
-    await main.bot.send_message(id_user, f"Вам зачислено {how_much} на баланс")
+    await main.bot.send_message(id_user, f"Вам зачислено {how_much}руб на баланс")
     
 
 async def check_is_not_ok(call: types.CallbackQuery):

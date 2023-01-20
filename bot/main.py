@@ -22,6 +22,7 @@ def start_bot():
 
     case_cs = {}
     skin_trade = {}
+    
     with open('case_price.csv', "r", encoding="utf8") as f:
         reader = csv.reader(f)
         for case, price in reader:

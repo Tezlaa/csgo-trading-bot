@@ -1,6 +1,6 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, \
-    KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
-    
+    KeyboardButton
+
 """--------------Top up balance steam---------------"""
 top_up_balance_steam = InlineKeyboardMarkup(row_width=2).add(
     InlineKeyboardButton("Открыта", callback_data='open_market'),
@@ -71,7 +71,7 @@ check_on_trade_sell_case = InlineKeyboardMarkup(row_width=1).add(
 def count_case():
     number_case = InlineKeyboardMarkup(row_width=8)
     for number in range(1, 16):
-        number_case.insert(InlineKeyboardButton(number, callback_data='count_' + str(number)))
+        number_case.insert(InlineKeyboardButton(str(number), callback_data='count_' + str(number)))
     
     return number_case
 
@@ -98,7 +98,7 @@ def get_case_inline_kb(case: dict, how_much_case=9) -> InlineKeyboardMarkup:
     return keyboard
     
 
-"""---------------------Top up balance bot-------------------"""
+"""---------------------------Profile--------------------------"""
 select_way_of_payment_bot = InlineKeyboardMarkup(row_width=1).add(
     InlineKeyboardButton("QIWI", callback_data='qiwi'),
     InlineKeyboardButton("Другое", callback_data='other_way_of_payment'),
@@ -107,6 +107,14 @@ select_way_of_payment_bot = InlineKeyboardMarkup(row_width=1).add(
 info_about_buy = InlineKeyboardMarkup(row_width=1).add(
     InlineKeyboardButton("Перейти к оплате", callback_data='go_to_payment'),
     InlineKeyboardButton("Перевести вручную", callback_data='payment_of_manually'),
+)
+
+
+other = InlineKeyboardMarkup(row_width=1).add(
+    InlineKeyboardButton("Сбербанк", callback_data='payment_sberbank'),
+    InlineKeyboardButton("Тинькофф", callback_data='payment_tinkoff'),
+    InlineKeyboardButton("Юмани", callback_data='payment_youmoney'),
+    InlineKeyboardButton("Yota", callback_data='payment_yota'),
 )
 
 
@@ -126,7 +134,7 @@ select_path_trade_case_kb = InlineKeyboardMarkup(row_width=2).add(
 )
 
 agree_or_no = InlineKeyboardMarkup(row_width=2).add(
-    InlineKeyboardButton("Подтверить", callback_data="agree"),
+    InlineKeyboardButton("Подтвердить", callback_data="agree"),
     InlineKeyboardButton("Отменить", callback_data="not_agree"),
 )
 
@@ -171,3 +179,72 @@ def select_skin_kb(how_much_price_case: str, all_skin_for_trade: dict, how_much_
     skin_kb.add(InlineKeyboardButton("Добавить кейс", callback_data="add_case"))
     
     return skin_kb
+
+
+"""------------------------------Rules-------------------------"""
+
+select_rules = InlineKeyboardMarkup(row_width=1).add(
+    InlineKeyboardButton("🏹Требования к аккаунту", callback_data="requirements"),
+    InlineKeyboardButton("❓Где взять логин", callback_data="where_to_get"),
+    InlineKeyboardButton("💵Лимиты на пополнение", callback_data="limit_on_payment"),
+    InlineKeyboardButton("💢Не пришли деньги на баланс", callback_data="no_money_came_in"),
+    InlineKeyboardButton("📉Пришла сумма меньше", callback_data="came_in_money_less"),
+    InlineKeyboardButton("🛡Политика возврата", callback_data="return_policy"),
+)
+
+go_to_back_by_rules = InlineKeyboardMarkup(row_width=1).add(
+    InlineKeyboardButton("⏪Назад", callback_data="go_to_back"),
+)
+
+"""------------------------------Game---------------------------"""
+
+game_menu = InlineKeyboardMarkup(row_width=1).add(
+    InlineKeyboardButton("✂Камень-ножницы-бумага", callback_data="stone_scissor_paper"),
+    InlineKeyboardButton("🐦Попади в птицу", callback_data="kill_bird"),
+)
+
+# stone_scissor_paper
+menu_ssp = InlineKeyboardMarkup(row_width=2).add(
+    InlineKeyboardButton("🚀Перейти к игре", callback_data="go_to_play_ssp"),
+    InlineKeyboardButton("⏪Вернуться назад", callback_data="go_to_game_menu"),
+)
+
+choice_kb = InlineKeyboardMarkup(row_width=1).add(
+    InlineKeyboardButton("🗿Камень", callback_data="choicessp_stone"),
+    InlineKeyboardButton("✂Ножницы", callback_data="choicessp_scissor"),
+    InlineKeyboardButton("📜Бумага", callback_data="choicessp_paper"),
+)
+
+win_ssp = InlineKeyboardMarkup(row_width=1).add(
+    InlineKeyboardButton("🤑Играть снова", callback_data="play_again_ssp"),
+    InlineKeyboardButton("Забрать", callback_data="take_win"),
+)
+
+lose_ssp = InlineKeyboardMarkup(row_width=1).add(
+    InlineKeyboardButton("🤑Играть снова", callback_data="go_to_play_ssp"),
+    InlineKeyboardButton("⏪Выбрать другую игру", callback_data="go_to_game_menu"),
+)
+
+# kill bird
+menu_kbg = InlineKeyboardMarkup(row_width=2).add(
+    InlineKeyboardButton("🚀Перейти к игре", callback_data="go_to_play_kbg"),
+    InlineKeyboardButton("⏪Вернуться назад", callback_data="go_to_game_menu"),
+)
+
+choice_kbg_kb = InlineKeyboardMarkup(row_width=2)
+up = InlineKeyboardButton("⬆", callback_data="choicekbg_up")
+left = InlineKeyboardButton("⬅", callback_data="choicekbg_left")
+right = InlineKeyboardButton("➡", callback_data="choicekbg_right")
+choice_kbg_kb.insert(up)
+choice_kbg_kb.add(left)
+choice_kbg_kb.insert(right)
+
+win_kbg = InlineKeyboardMarkup(row_width=1).add(
+    InlineKeyboardButton("🤑Играть дальше", callback_data="play_again_kbg"),
+    InlineKeyboardButton("Забрать", callback_data="take_win"),
+)
+
+lose_kbg = InlineKeyboardMarkup(row_width=1).add(
+    InlineKeyboardButton("💵Играть снова", callback_data="go_to_play_kbg"),
+    InlineKeyboardButton("⏪Выбрать другую игру", callback_data="go_to_game_menu"),
+)

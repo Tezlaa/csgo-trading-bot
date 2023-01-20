@@ -36,5 +36,8 @@ menu_profile = ReplyKeyboardMarkup(resize_keyboard=True, row_width=1).add(
     KeyboardButton("Пополнить баланс"),
     KeyboardButton("Главное меню"),
 )
-
-"""menu: Trade case"""
+"""menu: Game"""
+game_main_kb = ReplyKeyboardMarkup(resize_keyboard=True, row_width=1).add(
+    KeyboardButton("Главное меню"),
+    KeyboardButton("Выбрать другую игру"),
+)

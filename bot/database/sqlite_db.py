@@ -55,12 +55,18 @@ async def get_all_top_up(user_id: str) -> int:
 
 async def unbalance(how_much: str, user_id: str):
     balance_user = await get_balance_user(user_id)
-    if balance_user > int(how_much):
+    if balance_user >= int(how_much):
         cur.execute("UPDATE profile SET balance=? WHERE user_id=?", (str((balance_user - int(how_much))), user_id))
         base.commit()
     else:
         raise ValueError()  # if not enough balance
-    
+
+
+async def set_balance(balance: str, user_id: str):
+    cur.execute("UPDATE profile SET balance=? WHERE user_id=?", (balance, user_id))
+    base.commit()
+    return
+
 
 async def top_up_balance(how_much: str, user_id: str):
     ref_link = str(cur.execute(f"SELECT ref FROM profile WHERE user_id = {user_id}").fetchone()[0])
