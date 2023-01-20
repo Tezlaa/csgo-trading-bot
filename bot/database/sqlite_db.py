@@ -75,9 +75,9 @@ async def top_up_balance(how_much: str, user_id: str):
         cur.execute("UPDATE profile SET balance=? WHERE user_id=?", (top_up_user_ref, ref_link))
         
     balance_user = await get_balance_user(user_id)
+    balance_all_top_up = await get_all_top_up(user_id)
     top_up = str((balance_user + int(how_much)))
-    cur.execute("UPDATE profile SET balance=? WHERE user_id=?",
-                (top_up, user_id))
-    cur.execute("UPDATE profile SET all_top_up_balance=? WHERE user_id=?",
-                (top_up, user_id))
+    all_top_up = str((balance_all_top_up + int(how_much)))
+    cur.execute("UPDATE profile SET balance=? WHERE user_id=?", (top_up, user_id))
+    cur.execute("UPDATE profile SET all_top_up_balance=? WHERE user_id=?", (all_top_up, user_id))
     base.commit()

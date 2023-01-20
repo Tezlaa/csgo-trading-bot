@@ -18,11 +18,11 @@ class FsmTradeCase(StatesGroup):
 
 async def trade_case(msg: types.Message):
     if type(msg) != types.CallbackQuery:
-        await msg.answer("Обменять кейсы", reply_markup=go_to_main_menu)
+        await msg.answer("🧰Обменять кейсы", reply_markup=go_to_main_menu)
     else:
         msg.answer = msg.message.edit_text
 
-    await msg.answer("Выберите кейсы из вашего инвентар",
+    await msg.answer("Выберите кейсы из вашего инвентаря⤵",
                      reply_markup=get_case_inline_kb(get_case()))
     
     await FsmTradeCase.case.set()
@@ -35,7 +35,7 @@ async def set_how_case(call: types.CallbackQuery, state: FSMContext):
                 data["all_case_for_trade"] = [[], []]
     
     if call.data == "case_all":
-        await call.message.edit_text("Выберите кейсы из вашего инвентар",
+        await call.message.edit_text("Выберите кейсы из вашего инвентаря⤵",
                                      reply_markup=get_case_inline_kb(get_case(), 0))
         return
     
@@ -49,7 +49,7 @@ async def set_how_case(call: types.CallbackQuery, state: FSMContext):
             data["all_case"] += [{case: 0}]
                     
         data["case"] = case
-    await call.message.edit_text(f"Выберите количество кейсов «{case}»", reply_markup=count_case())
+    await call.message.edit_text(f"Выберите количество кейсов⤵\n «{case}»", reply_markup=count_case())
     
     await FsmTradeCase.next()
         
@@ -63,9 +63,9 @@ async def info_about_adding(call: types.CallbackQuery, state: FSMContext):
     text_with_all_case = ""
     for all_case in data["all_case"]:
         for case, count in all_case.items():
-            text_with_all_case += f'Кейс:  {case} - {count}шт.\n'
+            text_with_all_case += f'Кейс:  <b>{case}</b> - <em>{count}шт.</em>\n'
         
-    await call.message.edit_text(f"Вы добавили:\n"
+    await call.message.edit_text(f"✅Вы добавили:\n"
                                  f"{text_with_all_case}",
                                  reply_markup=select_path_trade_case_kb)
     await FsmTradeCase.next()
@@ -81,10 +81,10 @@ async def select_skin(call: types.CallbackQuery, state: FSMContext):
         pass
     
     try:
-        await call.message.edit_text("Выберите скины которые вы хотите",
+        await call.message.edit_text("🔫Выберите скины которые вы хотите",
                                      reply_markup=select_skin_kb(data["price_select_case"], get_skin()))
     except ZeroDivisionError:  # if no have skin about this price
-        await call.message.edit_text(f'Вы выбрали кейсов на {data["price_select_case"]}руб'
+        await call.message.edit_text(f'⚠Вы выбрали кейсов на <b>{data["price_select_case"]}руб</b>'
                                      f'\nВыберите больше кейсов, чтобы совершить обмен',
                                      reply_markup=get_case_inline_kb(get_case()))
         await FsmTradeCase.first()
@@ -131,10 +131,10 @@ async def agree_or_no_areement(call: types.CallbackQuery, state: FSMContext):
         async with state.proxy() as data:
             price_case = data["price_select_case"]
         try:
-            await call.message.edit_text("Выберите скины которые вы хотите",
+            await call.message.edit_text("🔫Выберите скины которые вы хотите",
                                          reply_markup=select_skin_kb(price_case, skins_dict))
         except ZeroDivisionError:  # if no have skin about this price
-            await call.message.edit_text(f'Вы выбрали кейсов на {price_case}руб'
+            await call.message.edit_text(f'⚠Вы выбрали кейсов на {price_case}руб'
                                          f'\nВыберите больше кейсов, чтобы совершить обмен',
                                          reply_markup=get_case_inline_kb(get_case()))
             await FsmTradeCase.first()
@@ -143,17 +143,15 @@ async def agree_or_no_areement(call: types.CallbackQuery, state: FSMContext):
 
 
 async def go_to_trade(call: types.CallbackQuery, state: FSMContext):
-    await call.message.answer("Отправьте следующим сообщением вашу трейд ссылку\n"
-                              "Функция нужна для прихода трейд ссылки вместе с составленным"
-                              "ранее обменом, чтобы я  мог отправить его",
+    await call.message.answer("Отправьте следующим сообщением вашу трейд ссылку⤵",
                               reply_markup=select_type_market_kb)
     await FsmTradeCase.next()
 
 
 async def set_link(msg: types.Message, state: FSMContext):  # beed trade link
-    if msg.text == "Где взять трейд-ссылку?":
+    if msg.text == "❓Где взять трейд-ссылку?":
         await msg.answer("https://www.youtube.com/watch?v=w3-eDOaOjx8")
-        await msg.answer('Для продолжения операции отправьте вашу трейд-ссылку следующим сообщением',
+        await msg.answer('Для продолжения операции отправьте вашу трейд-ссылку следующим сообщением⤵',
                          reply_markup=go_to_main_menu)
         return
     elif msg.text.find("https://steamcommunity.com/tradeoffer/new/") == 0:
@@ -162,10 +160,10 @@ async def set_link(msg: types.Message, state: FSMContext):  # beed trade link
         
         trade_link = 'https://www.google.com.ua/'
         async with state.proxy() as data:
-            await msg.answer(f"Отправьте трейд по этой <a href=\"{trade_link}\">ССЫЛКЕ</a>",
+            await msg.answer(f"⏳Отправьте трейд по этой <a href=\"{trade_link}\">ССЫЛКЕ</a>",
                              reply_markup=check_on_trade)
     else:
-        await msg.answer("Неправильная трейд-ссылка!\nОтправьте ссылку в правильном формате",
+        await msg.answer("⚠Неправильная трейд-ссылка!\nОтправьте ссылку в правильном формате⤵",
                          reply_markup=select_type_market_kb)
         return
 
@@ -187,7 +185,7 @@ async def check_trade(call: types.CallbackQuery, state: FSMContext):
     
 
 def register_trade_case_handlers(dp: Dispatcher):
-    dp.register_message_handler(trade_case, Text(equals='Обменять кейсы'))
+    dp.register_message_handler(trade_case, Text(equals='🧰Обменять кейсы'))
     dp.register_callback_query_handler(set_how_case, text_contains='case_', state=FsmTradeCase.case)
     dp.register_callback_query_handler(info_about_adding, text_contains="count_", state=FsmTradeCase.how_much_case)
     dp.register_callback_query_handler(add_case, text='add_case', state="*")

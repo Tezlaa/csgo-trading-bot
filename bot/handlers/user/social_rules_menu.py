@@ -39,45 +39,45 @@ async def rules_menu(msg: (types.Message or types.CallbackQuery), state: FSMCont
 
 async def requirements(call: types.CallbackQuery, state: FSMContext):
     await call.message.edit_text("Требования к аккаунту с закрытой торговой площадкой.\n\n"
-                                 "Мы пополняем только российские аккаунты. Валютой вашего аккаунта должны быть рубли.\n\n"
+                                 "<em>Мы пополняем только российские аккаунты. Валютой вашего аккаунта должны быть рубли.\n\n"
                                  "Мы НЕ можем отправить средства пользователям из следующих регионов: Крым, ЛНР, ДНР "
-                                 "и тем пользователям, на аккаунте которых красная табличка (КТ)",
+                                 "и тем пользователям, на аккаунте которых красная табличка (КТ)</em>",
                                  reply_markup=go_to_back_by_rules)
 
 
 async def where_to_get_login(call: types.CallbackQuery, state: FSMContext):
-    await call.message.edit_text("1. Запустите свой Steam клиент\n\n"
+    await call.message.edit_text("<em>1. Запустите свой Steam клиент\n\n"
                                  "2. В правом верхнем углу нажмите на свой никнейм\n\n"
                                  "3. В открывшемся меню выберите «Об аккаунте»\n\n"
                                  "Вы попадёте на страницу, на которой будет показан ваш"
-                                 "реальный логин (не никнейм)",
+                                 "реальный логин (не никнейм)</em>",
                                  reply_markup=go_to_back_by_rules)
 
 
 async def limit_on_payment(call: types.CallbackQuery, state: FSMContext):
     await call.message.edit_text("Лимиты на пополнение аккаунтов с закрытой торговой площадкой\n\n"
-                                 "Минимальная сумма пополнения 100₽\n"
+                                 "<em>Минимальная сумма пополнения 100₽\n"
                                  "Максимальная сумма 15 000₽\n\n"
                                  "Если нужно больше, то советуем сделать несколько заказов.\n\n"
                                  "Так же учитывайте общий лимит для аккаунта, он составляет $500 в сутки."
-                                 "При превышении лимита мы не несём ответственность за доставку средств.",
+                                 "При превышении лимита мы не несём ответственность за доставку средств.</em>",
                                  reply_markup=go_to_back_by_rules)
 
 
 async def no_money_came_in(call: types.CallbackQuery, state: FSMContext):
     await call.message.edit_text("Не пришли деньги на баланс\n\n"
-                                 "Если вы указали логин верно (это не никнейм) и баланс"
+                                 "<em>Если вы указали логин верно (это не никнейм) и баланс"
                                  "вашего аккаунта - рубли (₽), пополнение происходит моментально\n\n."
                                  "Если вы ошиблись и указали не свой логин и он существует в Steam,"
-                                 "то деньги уйдут другому человеку и вернуть их невозможно."
+                                 "то деньги уйдут другому человеку и вернуть их невозможно.</em>"
                                  "Будьте внимательны при вводе логина!",
                                  reply_markup=go_to_back_by_rules)
 
 
 async def came_in_money_less(call: types.CallbackQuery, state: FSMContext):
     await call.message.edit_text("Пришла сумма меньше\n\n"
-                                 "Для пополнения нам приходится конвертировать средства в разные валюты."
-                                 "Иногда из за разницы курса валют сумма может отличаться на 1-5% от указанной.",
+                                 "<em>Для пополнения нам приходится конвертировать средства в разные валюты."
+                                 "Иногда из за разницы курса валют сумма может отличаться на 1-5% от указанной.</em>",
                                  reply_markup=go_to_back_by_rules)
 
 
@@ -89,7 +89,7 @@ async def return_policy(call: types.CallbackQuery, state: FSMContext):
 def register_social_rules_handlers(dp: Dispatcher):
     dp.register_message_handler(social_media, Text(equals="Соц сети"))
     dp.register_callback_query_handler(rules_menu, text="go_to_back", state="*")
-    dp.register_message_handler(rules_menu, Text(equals="Правила"))
+    dp.register_message_handler(rules_menu, Text(equals="❗Правила"))
     dp.register_callback_query_handler(requirements, text="requirements", state=FsmRules)
     dp.register_callback_query_handler(where_to_get_login, text="where_to_get", state=FsmRules)
     dp.register_callback_query_handler(limit_on_payment, text="limit_on_payment", state=FsmRules)

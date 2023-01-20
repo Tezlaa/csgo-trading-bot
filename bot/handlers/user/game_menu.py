@@ -210,6 +210,8 @@ async def result_game_kbg(call: types.CallbackQuery, state: FSMContext):
     bird = random.randint(1, 3)
     dict_game = {"up": 1, "left": 2, "right": 3}
     
+    factor = 0.2
+    
     async with state.proxy() as data:
         pass
     
@@ -218,10 +220,10 @@ async def result_game_kbg(call: types.CallbackQuery, state: FSMContext):
         
         await call.message.edit_text(f'🏆Вы выиграли!\n'
                                      f'Ваш выиграш: <b>{balance_before_win} руб</b>\n'
-                                     f'💎Следующий множитель: <b>{data["factor"] + 0.3}X</b>\n',
+                                     f'💎Следующий множитель: <b>{data["factor"] + factor}X</b>\n',
                                      reply_markup=win_kbg)
         async with state.proxy() as data:
-            data["factor"] += 0.3
+            data["factor"] += factor
         
         await FsmKBG.next()
     elif dict_game[user_choice] != bird:
@@ -251,7 +253,7 @@ async def path_kbg(call: types.CallbackQuery, state: FSMContext):
         
 def register_game_handlers(dp: Dispatcher):
     dp.register_callback_query_handler(go_to_menu, text="go_to_game_menu", state="*")
-    dp.register_message_handler(go_to_menu, Text(equals=["Мини игры", "Выбрать другую игру"]), state="*")
+    dp.register_message_handler(go_to_menu, Text(equals=["🎮Мини игры", "🔃Выбрать другую игру"]), state="*")
     
     dp.register_callback_query_handler(ssp_info, text="stone_scissor_paper")
     dp.register_callback_query_handler(play_ssp_menu, text="go_to_play_ssp", state=FsmSSP.ssp_game)

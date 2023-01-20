@@ -3,8 +3,8 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, \
 
 """--------------Top up balance steam---------------"""
 top_up_balance_steam = InlineKeyboardMarkup(row_width=2).add(
-    InlineKeyboardButton("Открыта", callback_data='open_market'),
-    InlineKeyboardButton('Закрыта', callback_data='close_market'),
+    InlineKeyboardButton("🔓Открыта", callback_data='open_market'),
+    InlineKeyboardButton('🔒Закрыта', callback_data='close_market'),
 )
 
 button_price = InlineKeyboardMarkup(row_width=3).add(
@@ -17,7 +17,7 @@ button_price = InlineKeyboardMarkup(row_width=3).add(
 )
 
 way_of_payment = InlineKeyboardMarkup(row_width=1).add(
-    InlineKeyboardButton('Баланс бота', callback_data='bot'),
+    InlineKeyboardButton('🤖Баланс бота', callback_data='bot'),
     InlineKeyboardButton('Qiwi', callback_data='qiwi'),
 )
 
@@ -35,18 +35,18 @@ def qiwi_menu(is_url=True, url="", bill="") -> InlineKeyboardMarkup:
 
 """--------------------Balance out------------------"""
 balance_out_start = InlineKeyboardMarkup(row_width=1).add(
-    InlineKeyboardButton("Я хочу продать кейсы", callback_data="want_sell"),
-    InlineKeyboardButton("Я хочу вывести баланс из Steam", callback_data="want_balance_out_from_steam"),
+    InlineKeyboardButton("💵Я хочу продать кейсы", callback_data="want_sell"),
+    InlineKeyboardButton("💳Я хочу вывести баланс из Steam", callback_data="want_balance_out_from_steam"),
 )
 
 wont_to_balance_out_on_steam = InlineKeyboardMarkup(row_width=2).add(
-    InlineKeyboardButton("Вывести ключ(и)", callback_data='out_key'),
-    InlineKeyboardButton("Назад", callback_data='cancel_trade'),
+    InlineKeyboardButton("🔑Вывести ключ(и)", callback_data='out_key'),
+    InlineKeyboardButton("⏪Назад", callback_data='cancel_trade'),
 )
 
 check_on_trade = InlineKeyboardMarkup(row_width=1).add(
-    InlineKeyboardButton("Проверить", callback_data='check_trade'),
-    InlineKeyboardButton("Отмена", callback_data="cancel_trade"),
+    InlineKeyboardButton("🔎Проверить", callback_data='check_trade'),
+    InlineKeyboardButton("⛔Отмена", callback_data="cancel_trade"),
 )
 
 go_to_balance_out_start = InlineKeyboardMarkup(row_width=1).add(
@@ -54,16 +54,16 @@ go_to_balance_out_start = InlineKeyboardMarkup(row_width=1).add(
 )
 
 sell_case_start = InlineKeyboardMarkup(row_width=1).add(
-    InlineKeyboardButton("Выбрать кейсы", callback_data='select_case'),
+    InlineKeyboardButton("➕Выбрать кейсы", callback_data='select_case'),
 )
 
 select_path_kb = InlineKeyboardMarkup(row_width=2).add(
-    InlineKeyboardButton("Вывести", callback_data="go_to_out_case"),
-    InlineKeyboardButton("Добавить кейсы", callback_data='add_case'),
+    InlineKeyboardButton("💵Вывести", callback_data="go_to_out_case"),
+    InlineKeyboardButton("➕Добавить кейсы", callback_data='add_case'),
 )
 
 check_on_trade_sell_case = InlineKeyboardMarkup(row_width=1).add(
-    InlineKeyboardButton("Проверить", callback_data='check_trade'),
+    InlineKeyboardButton("🔎Проверить", callback_data='check_trade'),
     InlineKeyboardButton("Главное меню", callback_data="go_to_menu"),
 )
 
@@ -91,7 +91,7 @@ def get_case_inline_kb(case: dict, how_much_case=9) -> InlineKeyboardMarkup:
     
     try:
         if last_case[1] != len_case:
-            keyboard.add(InlineKeyboardButton('Другие кейсы', callback_data='case_all'))
+            keyboard.add(InlineKeyboardButton('↪Другие кейсы', callback_data='case_all'))
     except Exception:
         pass
         
@@ -101,12 +101,12 @@ def get_case_inline_kb(case: dict, how_much_case=9) -> InlineKeyboardMarkup:
 """---------------------------Profile--------------------------"""
 select_way_of_payment_bot = InlineKeyboardMarkup(row_width=1).add(
     InlineKeyboardButton("QIWI", callback_data='qiwi'),
-    InlineKeyboardButton("Другое", callback_data='other_way_of_payment'),
+    InlineKeyboardButton("💳Другое", callback_data='other_way_of_payment'),
 )
 
 info_about_buy = InlineKeyboardMarkup(row_width=1).add(
-    InlineKeyboardButton("Перейти к оплате", callback_data='go_to_payment'),
-    InlineKeyboardButton("Перевести вручную", callback_data='payment_of_manually'),
+    InlineKeyboardButton("💳Перейти к оплате", callback_data='go_to_payment'),
+    InlineKeyboardButton("💪Перевести вручную", callback_data='manually'),
 )
 
 
@@ -129,23 +129,23 @@ def check_cheque_admin(how_much: str, id_user: str, message_id: str):
 
 """---------------------------Trade case-----------------------"""
 select_path_trade_case_kb = InlineKeyboardMarkup(row_width=2).add(
-    InlineKeyboardButton("Выбрать скины", callback_data="go_to_add_skins"),
-    InlineKeyboardButton("Добавить кейсы", callback_data='add_case'),
+    InlineKeyboardButton("🔫Выбрать скины", callback_data="go_to_add_skins"),
+    InlineKeyboardButton("🧰Добавить кейсы", callback_data='add_case'),
 )
 
 agree_or_no = InlineKeyboardMarkup(row_width=2).add(
-    InlineKeyboardButton("Подтвердить", callback_data="agree"),
-    InlineKeyboardButton("Отменить", callback_data="not_agree"),
+    InlineKeyboardButton("✅Подтвердить", callback_data="agree"),
+    InlineKeyboardButton("⛔Отменить", callback_data="not_agree"),
 )
 
 before_adding_skin = InlineKeyboardMarkup(row_width=1).add(
-    InlineKeyboardButton("Добавить скины", callback_data="go_to_add_skins"),
-    InlineKeyboardButton("Перейти к обмену", callback_data="go_to_trade"),
+    InlineKeyboardButton("➕Добавить скины", callback_data="go_to_add_skins"),
+    InlineKeyboardButton("🚀Перейти к обмену", callback_data="go_to_trade"),
 )
 
 no_money_for_add_skin = InlineKeyboardMarkup(row_width=2).add(
-    InlineKeyboardButton("Перейти к обмену", callback_data="go_to_trade"),
-    InlineKeyboardButton("Добавить кейсы", callback_data='add_case'),
+    InlineKeyboardButton("🚀Перейти к обмену", callback_data="go_to_trade"),
+    InlineKeyboardButton("➕Добавить кейсы", callback_data='add_case'),
 )
 
 
@@ -172,11 +172,11 @@ def select_skin_kb(how_much_price_case: str, all_skin_for_trade: dict, how_much_
     
     try:
         if last_skin[1] != len_skin:
-            skin_kb.add(InlineKeyboardButton('Другие скрины', callback_data='skin_all'))
+            skin_kb.add(InlineKeyboardButton('↪Другие скрины', callback_data='skin_all'))
     except Exception:
         pass
     
-    skin_kb.add(InlineKeyboardButton("Добавить кейс", callback_data="add_case"))
+    skin_kb.add(InlineKeyboardButton("🧰Добавить кейс", callback_data="add_case"))
     
     return skin_kb
 
