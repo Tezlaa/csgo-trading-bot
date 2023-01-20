@@ -21,7 +21,6 @@ way_of_payment = InlineKeyboardMarkup(row_width=1).add(
     InlineKeyboardButton('Qiwi', callback_data='qiwi'),
 )
 
-
 def qiwi_menu(is_url=True, url="", bill="") -> InlineKeyboardMarkup:
     qiwi_kb = InlineKeyboardMarkup(row_width=1)
     if is_url:

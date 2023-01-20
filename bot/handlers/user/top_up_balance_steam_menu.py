@@ -76,12 +76,16 @@ async def set_amount(msg, state: FSMContext):
             data["amount"] = msg.data
             msg = msg.message
     else:
-        if int(msg.text) > 100:
-            async with state.proxy() as data:
-                data["amount"] = msg.text
-        else:
-            await msg.answer('⚠Минимальная сумма - 100руб\nВведите сумму пополнения или выберите из популярных',
-                             reply_markup=inline.button_price)
+        try:
+            if int(msg.text) > 100:
+                async with state.proxy() as data:
+                    data["amount"] = msg.text
+            else:
+                await msg.answer('⚠Минимальная сумма - 100руб\nВведите сумму пополнения или выберите из популярных',
+                                 reply_markup=inline.button_price)
+                return
+        except ValueError:
+            await msg.reply("Введите число!", reply_markup=inline.button_price)
             return
 
     async with state.proxy() as data:
