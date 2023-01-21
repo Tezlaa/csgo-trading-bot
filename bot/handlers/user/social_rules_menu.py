@@ -13,15 +13,12 @@ class FsmRules(StatesGroup):
 
 
 async def social_media(msg: types.Message, state: FSMContext):
-    instagram = "https://www.instagram.com/"
-    vk = "https://vk.com/"
-    telegram_group = "https://web.telegram.org/"
-    
+    text_with_social = ""
+    for name_social, link_social in main.social.items():
+        text_with_social += f'{name_social} - {link_social}\n'
+        
     await main.bot.send_message(chat_id=msg.chat.id,
-                                text=f'Соц сети:\n'
-                                     f'    <a href="{instagram}">Instagram</a>\n'
-                                     f'    <a href="{vk}">ВК</a>\n'
-                                     f'    <a href="{telegram_group}">Телеграм группа</a>\n',
+                                text=f'🪪Соц сети:\n{text_with_social}',
                                 disable_web_page_preview=True,
                                 parse_mode="HTML")
 
@@ -87,14 +84,14 @@ async def how_get_balance_steam(call: types.CallbackQuery, state: FSMContext):
                                  "Стоимость скинов будет на 13% больше, чем вы заказали, чтобы при продаже Вы получили "
                                  "нужный баланс. Для продажи скинов вам не обязательно иметь определённую игру!\n\n"
                                  "- Если Вы выбрали пополнение с закрытой торговой площадкой, то баланс будет "
-                                 "автоматически зачислен в Steam.</em>")
+                                 "автоматически зачислен в Steam.</em>",
+                                 reply_markup=go_to_back_by_rules)
 
 
 async def return_policy(call: types.CallbackQuery, state: FSMContext):
-    await call.message.edit_text("Политика возврата\n\n"
-                                 "Если вы проигнорировали требования к аккаунту и все же попытались отправить "
+    await call.message.edit_text("<em>Если вы проигнорировали требования к аккаунту и все же попытались отправить "
                                  "себе средства, то они не дойдут. В этом случае деньги вернуться на баланс бота "
-                                 "и Вы сможете повторно сделать заказ.",
+                                 "и Вы сможете повторно сделать заказ.</em>",
                                  reply_markup=go_to_back_by_rules)
 
 

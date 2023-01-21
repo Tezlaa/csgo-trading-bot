@@ -18,11 +18,16 @@ async def __on_start_up(dp: Dispatcher) -> None:
 
 
 def start_bot():
-    global bot, p2p_qiwi, case_cs, skin_trade
+    global bot, p2p_qiwi, case_cs, skin_trade, social
 
     case_cs = {}
     skin_trade = {}
+    social = {}
     
+    with open('social.csv', "r", encoding="utf8") as f:
+        reader = csv.reader(f)
+        for name_social, link_social in reader:
+            social[name_social] = link_social
     with open('case_price.csv', "r", encoding="utf8") as f:
         reader = csv.reader(f)
         for case, price in reader:
