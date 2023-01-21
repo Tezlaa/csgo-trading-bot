@@ -24,7 +24,7 @@ async def sql_start():
     base.commit()
 
 
-async def create_profile(user_id, username, referal=None):
+async def create_profile(user_id: str, username, referal=None):
     user = cur.execute(f'SELECT 1 FROM profile WHERE user_id == {user_id}').fetchone()
     if not user:
         cur.execute("INSERT INTO profile VALUES(?, ?, ?, ?, ?, ?)", (user_id, username, 15, 0, referal, 0))

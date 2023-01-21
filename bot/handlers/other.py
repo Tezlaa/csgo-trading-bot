@@ -19,7 +19,7 @@ async def bot_start(msg: Message):
             pass
     else:
         await create_profile(user_id=msg.from_user.id, username=name)
-
+        
 
 def register_other_handlers(dp: Dispatcher):
     dp.register_message_handler(bot_start, commands=['start'])

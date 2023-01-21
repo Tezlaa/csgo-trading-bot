@@ -5,8 +5,8 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
-from bot.keyboards.inline import game_menu, menu_ssp, choice_kb, win_ssp, lose_ssp, menu_kbg, choice_kbg_kb, win_kbg,\
-    lose_kbg
+from bot.keyboards.inline import choice_eat, choice_kb, choice_kbg_kb, game_menu,\
+    lose_kbg, lose_ssp, menu_eat, menu_kbg, menu_ssp, result_eat, win_kbg, win_ssp
 from bot.keyboards.reply import game_main_kb, start_kb
 from bot.database.sqlite_db import get_balance_user, set_balance, unbalance
 
@@ -21,6 +21,14 @@ class FsmSSP(StatesGroup):
 
 class FsmKBG(StatesGroup):
     kill_bird_game = State()
+    set_bet_to_game = State()
+    choice_user = State()
+    
+    select_path = State()
+
+
+class FsmEAT(StatesGroup):
+    eagle_anf_tails_game = State()
     set_bet_to_game = State()
     choice_user = State()
     
@@ -57,7 +65,7 @@ async def play_ssp_menu(call: types.CallbackQuery, state: FSMContext):
     if balance > min_rate:
         await call.message.edit_text(f'У вас на счету: {await get_balance_user(call.from_user.id)} руб\n'
                                      f'Минимальная ставка: {min_rate} руб\n'
-                                     f'Выиграш +30% к вашей ставке\n\n'
+                                     f'Выиграш +95% к вашей ставке\n\n'
                                      f'🚀<b>Отправьте вашу ставку:</b>')
         await FsmSSP.next()
     else:
@@ -108,9 +116,17 @@ async def result_game_ssp(call: types.CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         pass
     
+    if data["bet"] >= 300:
+        await call.message.edit_text('💢Вы проиграли\n'
+                                     'Попробуйте снова',
+                                     reply_markup=lose_ssp)
+        await unbalance(data["bet_start"], call.from_user.id)
+        await FsmSSP.ssp_game.set()
+        return
+    
     # win
     if dict_game[user_choice] == 1 and enemy == 2 or dict_game[user_choice] == 2 and enemy == 3 or dict_game[user_choice] == 3 and enemy == 1:
-        balance_before_win = data["bet"] * 1.35
+        balance_before_win = data["bet"] * 1.95
         
         await call.message.edit_text(f'🏆Вы выиграли!\n'
                                      f'💎Ваш выиграш: <b>{balance_before_win} руб</b>',
@@ -200,6 +216,7 @@ async def play_kbg(msg: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data["factor"] = 1.2
         data["bet"] = bet
+        data["winning"] = 0
         
     await msg.answer("Сделайте выбор:", reply_markup=choice_kbg_kb)
     await FsmKBG.next()
@@ -214,6 +231,14 @@ async def result_game_kbg(call: types.CallbackQuery, state: FSMContext):
     
     async with state.proxy() as data:
         pass
+    
+    if data["bet"] >= 300 or data["winning"] >= 300:
+        await call.message.edit_text('💢Вы не попали\n'
+                                     'Попробуйте снова',
+                                     reply_markup=lose_kbg)
+        await unbalance(data["bet"], call.from_user.id)
+        await FsmKBG.kill_bird_game.set()
+        return
     
     if dict_game[user_choice] == bird:
         balance_before_win = data["bet"] * data["factor"]
@@ -237,19 +262,115 @@ async def result_game_kbg(call: types.CallbackQuery, state: FSMContext):
 
 async def path_kbg(call: types.CallbackQuery, state: FSMContext):
     if call.data == "play_again_kbg":
+        async with state.proxy() as data:
+            winning = data["bet"] * data["factor"]
+            data["winning"] = winning
+            
         await call.message.edit_text("Сделайте выбор:", reply_markup=choice_kbg_kb)
         await FsmKBG.choice_user.set()
     elif call.data == "take_win":
         async with state.proxy() as data:
-            pass
-        
-        balance_before_game = await get_balance_user(call.from_user.id)
-        winning = data["bet"] * data["factor"]
+            balance_before_game = await get_balance_user(call.from_user.id)
+            winning = data["bet"] * data["factor"]
         
         await set_balance(balance=(balance_before_game + winning), user_id=call.from_user.id)
         await call.message.edit_text(f'💎Ваш баланс пополнен на <b>{winning} руб!</b>', reply_markup=game_menu)
         await state.finish()
 
+
+async def eagle_and_tails_info(call: types.CallbackQuery):
+    await call.message.edit_text("🦅Игра 'Орёл и решка'\n\n"
+                                 "<em>Старинная мужская азартная игра, распространённая во многих странах.\n\n"
+                                 "Смысл игры заключается в следующем: бросают монету любого номинала, и тот, "
+                                 "кто угадает, какой стороной она упадёт - выигрывает.</em>\n",
+                                 reply_markup=menu_eat)
+    await FsmEAT.eagle_anf_tails_game.set()
+    
+
+async def play_eat_menu(call: types.CallbackQuery, state: FSMContext):
+    global min_rate
+    balance = await get_balance_user(call.from_user.id)
+    
+    min_rate = 10  # minimum bet to play
+    
+    if balance > min_rate:
+        await call.message.edit_text(f'У вас на счету: {await get_balance_user(call.from_user.id)} руб\n'
+                                     f'Минимальная ставка: {min_rate} руб\n'
+                                     f'Выиграш +95% к вашей ставке\n\n'
+                                     f'🚀<b>Отправьте вашу ставку:</b>')
+        await FsmEAT.next()
+    else:
+        await call.message.edit_text("Недостаточно баланса")
+        await call.message.delete()
+        
+        await call.message.answer(f'💢У вас на счету: {await get_balance_user(call.from_user.id)}руб\n'
+                                  f'Минимальная ставка: {min_rate} руб\n\n'
+                                  f'❗<b>Пополните баланс для игры!</b>',
+                                  reply_markup=start_kb)
+
+
+async def play_eat(msg: types.Message, state: FSMContext):
+    balance_user = await get_balance_user(msg.from_user.id)
+    
+    try:
+        bet = int(msg.text)
+    except ValueError:
+        await msg.answer("❗Введите число")
+        return
+    
+    if balance_user < bet:
+        await msg.answer(f'💵Пополните баланс на {bet - balance_user} руб!\n'
+                         f'Сделайте меньше ставку!')
+        return
+    elif bet < min_rate:
+        await msg.answer(f'❗Минимальная ставка {min_rate} руб')
+        return
+    
+    async with state.proxy() as data:
+        data["bet"] = bet
+        
+    await msg.answer("Сделайте выбор:", reply_markup=choice_eat)
+    await FsmEAT.next()
+        
+
+async def result_game_eat(call: types.CallbackQuery, state: FSMContext):
+    user_choice = call.data.split("_")[1]
+    bird = random.randint(1, 2)
+    dict_game = {"eagle": 1, "tails": 2}
+    
+    async with state.proxy() as data:
+        pass
+    
+    if data["bet"] >= 300 or dict_game[user_choice] != bird:
+        await call.message.edit_text('💢Вы проиграли\n'
+                                     'Попробуйте снова',
+                                     reply_markup=result_eat)
+        await unbalance(data["bet"], call.from_user.id)
+        await FsmEAT.next()
+        return
+    
+    if dict_game[user_choice] == bird:
+        balance_before_win = data["bet"] * 1.95
+        
+        await call.message.edit_text(f'🏆Вы выиграли!\n'
+                                     f'💎Ваш выиграш: <b>{balance_before_win} руб</b>\n',
+                                     reply_markup=result_eat)
+        balance_before_game = await get_balance_user(call.from_user.id)
+        await set_balance(balance=(balance_before_game + balance_before_win), user_id=call.from_user.id)
+        
+        await FsmEAT.next()
+
+
+async def path_eat(call: types.CallbackQuery, state: FSMContext):
+    global min_rate
+    
+    if call.data == "play_again_eat":
+        await call.message.edit_text(f'У вас на счету: {await get_balance_user(call.from_user.id)} руб\n'
+                                     f'Минимальная ставка: {min_rate} руб\n'
+                                     f'Выиграш +95% к вашей ставке\n\n'
+                                     f'🚀<b>Отправьте вашу ставку:</b>')
+        await FsmEAT.set_bet_to_game.set()
+        
         
 def register_game_handlers(dp: Dispatcher):
     dp.register_callback_query_handler(go_to_menu, text="go_to_game_menu", state="*")
@@ -267,4 +388,8 @@ def register_game_handlers(dp: Dispatcher):
     dp.register_callback_query_handler(result_game_kbg, text_contains=["choicekbg_"], state=FsmKBG.choice_user)
     dp.register_callback_query_handler(path_kbg, text=["play_again_kbg", "take_win"], state=FsmKBG.select_path)
     
-
+    dp.register_callback_query_handler(eagle_and_tails_info, text="eagle_and_tails")
+    dp.register_callback_query_handler(play_eat_menu, text="go_to_play_eat", state=FsmEAT.eagle_anf_tails_game)
+    dp.register_message_handler(play_eat, content_types=["text"], state=FsmEAT.set_bet_to_game)
+    dp.register_callback_query_handler(result_game_eat, text_contains=["choiceeat_"], state=FsmEAT.choice_user)
+    dp.register_callback_query_handler(path_eat, text="play_again_eat", state=FsmEAT.select_path)

@@ -21,6 +21,7 @@ way_of_payment = InlineKeyboardMarkup(row_width=1).add(
     InlineKeyboardButton('Qiwi', callback_data='qiwi'),
 )
 
+
 def qiwi_menu(is_url=True, url="", bill="") -> InlineKeyboardMarkup:
     qiwi_kb = InlineKeyboardMarkup(row_width=1)
     if is_url:
@@ -188,6 +189,7 @@ select_rules = InlineKeyboardMarkup(row_width=1).add(
     InlineKeyboardButton("💵Лимиты на пополнение", callback_data="limit_on_payment"),
     InlineKeyboardButton("💢Не пришли деньги на баланс", callback_data="no_money_came_in"),
     InlineKeyboardButton("📉Пришла сумма меньше", callback_data="came_in_money_less"),
+    InlineKeyboardButton("💰Как я получу свой баланс в steam?", callback_data="how_get_balance_steam"),
     InlineKeyboardButton("🛡Политика возврата", callback_data="return_policy"),
 )
 
@@ -200,6 +202,7 @@ go_to_back_by_rules = InlineKeyboardMarkup(row_width=1).add(
 game_menu = InlineKeyboardMarkup(row_width=1).add(
     InlineKeyboardButton("✂Камень-ножницы-бумага", callback_data="stone_scissor_paper"),
     InlineKeyboardButton("🐦Попади в птицу", callback_data="kill_bird"),
+    InlineKeyboardButton("🦅Орёл и решка", callback_data="eagle_and_tails"),
 )
 
 # stone_scissor_paper
@@ -245,5 +248,21 @@ win_kbg = InlineKeyboardMarkup(row_width=1).add(
 
 lose_kbg = InlineKeyboardMarkup(row_width=1).add(
     InlineKeyboardButton("💵Играть снова", callback_data="go_to_play_kbg"),
+    InlineKeyboardButton("⏪Выбрать другую игру", callback_data="go_to_game_menu"),
+)
+
+# eagle_and_tails
+menu_eat = InlineKeyboardMarkup(row_width=2).add(
+    InlineKeyboardButton("🚀Перейти к игре", callback_data="go_to_play_eat"),
+    InlineKeyboardButton("⏪Вернуться назад", callback_data="go_to_game_menu"),
+)
+
+choice_eat = InlineKeyboardMarkup(row_width=1).add(
+    InlineKeyboardButton("🦅Орёл", callback_data="choiceeat_eagle"),
+    InlineKeyboardButton("🪙Решка", callback_data="choiceeat_tails"),
+)
+
+result_eat = InlineKeyboardMarkup(row_width=1).add(
+    InlineKeyboardButton("🤑Играть снова", callback_data="play_again_eat"),
     InlineKeyboardButton("⏪Выбрать другую игру", callback_data="go_to_game_menu"),
 )
