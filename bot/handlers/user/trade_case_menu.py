@@ -85,7 +85,7 @@ async def select_skin(call: types.CallbackQuery, state: FSMContext):
                                      reply_markup=select_skin_kb(data["price_select_case"], get_skin()))
     except ZeroDivisionError:  # if no have skin about this price
         await call.message.edit_text(f'⚠Вы выбрали кейсов на <b>{data["price_select_case"]}руб</b>'
-                                     f'\nВыберите больше кейсов, чтобы совершить обмен',
+                                     f'\n\nВыберите больше кейсов, чтобы совершить обмен',
                                      reply_markup=get_case_inline_kb(get_case()))
         await FsmTradeCase.first()
 
@@ -94,14 +94,14 @@ async def agreement(call: types.CallbackQuery, state: FSMContext):
     if call.data == 'skin_all':
         async with state.proxy() as data:
             price_case = data["price_select_case"]
-            await call.message.edit_text("Выберите скины которые вы хотите",
+            await call.message.edit_text("🔫Выберите скины которые вы хотите",
                                          reply_markup=select_skin_kb(price_case, get_skin(), 0))
         return
         
     async with state.proxy() as data:
         skin = [call.data.split("_")[1]][0]
         data["skin"] = skin
-    await call.message.edit_text(f'Вы выбрали {skin}', reply_markup=agree_or_no)
+    await call.message.edit_text(f'<em>Вы выбрали:</em>\n      <b>{skin}</b>', reply_markup=agree_or_no)
 
 
 async def agree_or_no_areement(call: types.CallbackQuery, state: FSMContext):
@@ -118,14 +118,14 @@ async def agree_or_no_areement(call: types.CallbackQuery, state: FSMContext):
             all_skin = str(data["all_skin"]).split("[")[1].split("]")[0]
             
             if int(data["price_select_case"]) < int(sorted((skins_dict).values())[0]) + 1:
-                await call.message.edit_text(f'<em>Вы выбрали</em> <b>{all_skin}</b>'
-                                             f'\nУ вас нехватает для выбора скинов!',
+                await call.message.edit_text(f'<em>Вы выбрали:</em>\n     <b>{all_skin}</b>'
+                                             f'\n\nУ вас нехватает для выбора скинов!',
                                              reply_markup=no_money_for_add_skin)
                 data["all_case"] = []
                 return
                 
-            await call.message.edit_text(f'<em>Вы выбрали</em> <b>{all_skin}</b>'
-                                         f'\nУ вас осталось: <b>{data["price_select_case"]}руб</b>',
+            await call.message.edit_text(f'<em>Вы выбрали:</em>\n    <b>{all_skin}</b>'
+                                         f'\n\nУ вас осталось: <b>{data["price_select_case"]}руб</b>',
                                          reply_markup=before_adding_skin)
     if call.data == "not_agree":
         async with state.proxy() as data:
@@ -134,8 +134,8 @@ async def agree_or_no_areement(call: types.CallbackQuery, state: FSMContext):
             await call.message.edit_text("🔫Выберите скины которые вы хотите",
                                          reply_markup=select_skin_kb(price_case, skins_dict))
         except ZeroDivisionError:  # if no have skin about this price
-            await call.message.edit_text(f'⚠Вы выбрали кейсов на {price_case}руб'
-                                         f'\nВыберите больше кейсов, чтобы совершить обмен',
+            await call.message.edit_text(f'⚠Вы выбрали кейсов на <b>{price_case}руб</b>'
+                                         f'\n\nВыберите больше кейсов, чтобы совершить обмен',
                                          reply_markup=get_case_inline_kb(get_case()))
             await FsmTradeCase.first()
             return
