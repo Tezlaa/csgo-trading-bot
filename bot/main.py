@@ -1,5 +1,5 @@
-import logging
 import csv
+import logging
 import os
 
 from aiogram import Bot, Dispatcher
@@ -23,16 +23,16 @@ def start_bot():
     case_cs = {}
     skin_trade = {}
     social = {}
-    
-    with open('social.csv', "r", encoding="utf8") as f:
+       
+    with open('files_for_admin/social.csv', "r", encoding="utf8") as f:
         reader = csv.reader(f)
         for name_social, link_social in reader:
             social[name_social] = link_social
-    with open('case_price.csv', "r", encoding="utf8") as f:
+    with open('files_for_admin/case_price.csv', "r", encoding="utf8") as f:
         reader = csv.reader(f)
         for case, price in reader:
             case_cs[case] = int(price)
-    with open('skins.csv', "r", encoding="utf-8") as f:
+    with open('files_for_admin/skins.csv', "r", encoding="utf-8") as f:
         reader = csv.reader(f)
         for skin, price in reader:
             skin_trade[skin] = int(price)

@@ -31,6 +31,7 @@ async def top_up_steam(msg: types.Message):
 
 async def open_market(call: types.CallbackQuery):
     await FsmMarket.set_trade_link.set()
+    
     await main.bot.delete_message(call.message.chat.id, call.message.message_id)
     await call.message.answer('Для продолжения операции отправьте вашу трейд-ссылку следующим сообщением⤵',
                               reply_markup=select_type_market_kb)
@@ -38,6 +39,7 @@ async def open_market(call: types.CallbackQuery):
 
 async def close_market(call: types.CallbackQuery):
     await FsmMarket.set_login.set()
+    
     await main.bot.delete_message(call.message.chat.id, call.message.message_id)
     await call.message.answer('👤Введите логин Steam.\n(Что такое логин, можно узнать во вкладке FAQ)',
                               reply_markup=go_to_main_menu)
@@ -52,6 +54,7 @@ async def set_link(msg: types.Message, state: FSMContext):
     elif msg.text.find("https://steamcommunity.com/tradeoffer/new/") == 0:
         async with state.proxy() as data:
             data["user_link"] = msg.text
+            data["close_market"] = False
         await FsmMarket.next()
         await FsmMarket.next()
         await msg.answer('Введите сумму пополнения или выберите из популярных',
@@ -65,6 +68,7 @@ async def set_link(msg: types.Message, state: FSMContext):
 async def set_user_login(msg: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data["user_login"] = msg.text
+        data["close_market"] = True
     await msg.answer('💵Введите сумму пополнения или выберите из популярных',
                      reply_markup=inline.button_price)
     await FsmMarket.next()
@@ -93,12 +97,17 @@ async def set_amount(msg, state: FSMContext):
             data["link_or_login"] = f'Логин: {data["user_login"]}'
         except KeyError:
             data["link_or_login"] = f'Трейд-ссылка: <a href="{data["user_link"]}">ССЫЛКА</a>'
+        
+        if data["close_market"]:
+            money_get = int(data["amount"]) - (int(data["amount"]) * 0.20)
+        else:
+            money_get = int(data["amount"]) * 1.03
     await main.bot.delete_message(msg.chat.id, msg.message_id)
     await main.bot.send_message(msg.chat.id,
                                 text=f'📝Информация по оплате\n\n'
                                      f'{data["link_or_login"]}\n'
                                      f'Заплатите: {data["amount"]}руб\n'
-                                     f'Получите: {data["amount"]}руб\n\n'
+                                     f'Получите: {money_get}руб\n\n'
                                      f'<b>Выберите способ оплаты</b>',
                                 reply_markup=inline.way_of_payment,
                                 disable_web_page_preview=True)

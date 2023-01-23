@@ -3,7 +3,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
-from important import trade_link
+from files_for_admin.important import trade_link
 from bot.handlers.user.different import get_all_price_case, get_case, get_text_with_all_case,\
     send_message_all_admin
 from bot.keyboards import inline
@@ -28,8 +28,8 @@ async def balance_out(msg: types.Message):
     elif msg.text != '↪Назад':
         await msg.answer('Вывести баланс', reply_markup=back_kb)
      
-    await msg.answer('❗Вывод возможен от 100Р.'
-                     'Вы сможете вывести средства на Qiwi, ЮMoney, СберБанк, Тинькофф, МТС, Yota и другие кошельки.'
+    await msg.answer('❗Вывод возможен от 100Р.\n'
+                     'Вы сможете вывести средства на Qiwi, ЮMoney, СберБанк, Тинькофф, МТС, Yota и другие кошельки.\n'
                      '<em>Комиссию при переводе не оплачиваем!</em>', reply_markup=inline.balance_out_start)
 
 

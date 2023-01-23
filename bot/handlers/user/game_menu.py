@@ -5,10 +5,10 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
+from bot.database.sqlite_db import get_balance_user, set_balance, unbalance
 from bot.keyboards.inline import choice_eat, choice_kb, choice_kbg_kb, game_menu,\
     lose_kbg, lose_ssp, menu_eat, menu_kbg, menu_ssp, result_eat, win_kbg, win_ssp
 from bot.keyboards.reply import game_main_kb, start_kb
-from bot.database.sqlite_db import get_balance_user, set_balance, unbalance
 
 
 class FsmSSP(StatesGroup):
@@ -76,6 +76,7 @@ async def play_ssp_menu(call: types.CallbackQuery, state: FSMContext):
                                   f'Минимальная ставка: {min_rate} руб\n\n'
                                   f'❗<b>Пополните баланс для игры!</b>',
                                   reply_markup=start_kb)
+        await state.finish()
 
 
 async def play_ssp(msg: types.Message, state: FSMContext):
@@ -194,6 +195,7 @@ async def play_kbg_menu(call: types.CallbackQuery, state: FSMContext):
                                   f'Минимальная ставка: {min_rate} руб\n\n'
                                   f'❗<b>Пополните баланс для игры!</b>',
                                   reply_markup=start_kb)
+        await state.finish()
         
         
 async def play_kbg(msg: types.Message, state: FSMContext):
@@ -307,6 +309,7 @@ async def play_eat_menu(call: types.CallbackQuery, state: FSMContext):
                                   f'Минимальная ставка: {min_rate} руб\n\n'
                                   f'❗<b>Пополните баланс для игры!</b>',
                                   reply_markup=start_kb)
+        await state.finish()
 
 
 async def play_eat(msg: types.Message, state: FSMContext):

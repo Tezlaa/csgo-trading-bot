@@ -1,9 +1,13 @@
+import os
+
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
-from bot.handlers.user.different import get_case, get_skin, get_all_price_case, send_message_all_admin
+from bot import main
+from bot.handlers.user.different import get_case, get_skin, get_all_price_case, send_message_all_admin,\
+    send_photo_with_trade_skin
 from bot.keyboards.inline import count_case, get_case_inline_kb, select_path_trade_case_kb, select_skin_kb,\
     agree_or_no, before_adding_skin, check_on_trade, no_money_for_add_skin
 from bot.keyboards.reply import go_to_main_menu, select_type_market_kb
@@ -33,6 +37,7 @@ async def set_how_case(call: types.CallbackQuery, state: FSMContext):
         if len(data) == 0:
             async with state.proxy() as data:
                 data["all_case_for_trade"] = [[], []]
+                data["first_state"] = True
     
     if call.data == "case_all":
         await call.message.edit_text("Выберите кейсы из вашего инвентаря⤵",
@@ -81,8 +86,14 @@ async def select_skin(call: types.CallbackQuery, state: FSMContext):
         pass
     
     try:
-        await call.message.edit_text("🔫Выберите скины которые вы хотите",
-                                     reply_markup=select_skin_kb(data["price_select_case"], get_skin()))
+        if data["first_state"]:
+            await send_photo_with_trade_skin(call)
+            async with state.proxy() as data:
+                data["first_state"] = False
+        else:
+            call.message.answer = call.message.edit_text
+        await call.message.answer("🔫Выберите скины которые вы хотите",
+                                  reply_markup=select_skin_kb(data["price_select_case"], get_skin()))
     except ZeroDivisionError:  # if no have skin about this price
         await call.message.edit_text(f'⚠Вы выбрали кейсов на <b>{data["price_select_case"]}руб</b>'
                                      f'\n\nВыберите больше кейсов, чтобы совершить обмен',
@@ -94,8 +105,9 @@ async def agreement(call: types.CallbackQuery, state: FSMContext):
     if call.data == 'skin_all':
         async with state.proxy() as data:
             price_case = data["price_select_case"]
-            await call.message.edit_text("🔫Выберите скины которые вы хотите",
-                                         reply_markup=select_skin_kb(price_case, get_skin(), 0))
+        
+        await call.message.edit_text("🔫Выберите скины которые вы хотите",
+                                     reply_markup=select_skin_kb(price_case, get_skin(), 0))
         return
         
     async with state.proxy() as data:
@@ -125,14 +137,27 @@ async def agree_or_no_areement(call: types.CallbackQuery, state: FSMContext):
                 return
                 
             await call.message.edit_text(f'<em>Вы выбрали:</em>\n    <b>{all_skin}</b>'
-                                         f'\n\nУ вас осталось: <b>{data["price_select_case"]}руб</b>',
+                                         f'\n\n<b>Вы можете добавить скины</b>',
                                          reply_markup=before_adding_skin)
     if call.data == "not_agree":
         async with state.proxy() as data:
             price_case = data["price_select_case"]
         try:
-            await call.message.edit_text("🔫Выберите скины которые вы хотите",
-                                         reply_markup=select_skin_kb(price_case, skins_dict))
+            # # photo
+            # await call.message.delete()
+            # directory = "files_for_admin/photo_for_trade"
+            # photos = list()
+            # formats = ['.jpg', '.jpeg', '.png']
+            
+            # for i in formats:
+            #     for j in filter(lambda x: x.endswith(i), os.listdir(directory)):
+            #         photos.append(j)
+            # for i in photos:
+            #     with open(f"{directory}/{i}", 'rb') as photo:
+            #         await main.bot.send_photo(chat_id=call.message.chat.id, photo=photo)
+            
+            await call.message.answer("🔫Выберите скины которые вы хотите",
+                                      reply_markup=select_skin_kb(price_case, skins_dict))
         except ZeroDivisionError:  # if no have skin about this price
             await call.message.edit_text(f'⚠Вы выбрали кейсов на <b>{price_case}руб</b>'
                                          f'\n\nВыберите больше кейсов, чтобы совершить обмен',

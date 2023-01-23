@@ -1,3 +1,4 @@
+import os
 import random
 from datetime import datetime
 
@@ -66,15 +67,20 @@ async def get_all_price_case(all_case_from_user: dict, price_on_case: dict) -> i
                     price += (count * price_dp)
     
     return price
-            
 
-async def payment_p2p_qiwi(call: types.CallbackQuery, data: dict):
-    comment = str(call.from_user.id) + "_" + str(random.randint(1000, 9999))
-    bill = main.p2p.bill(amount=data["amount"], lifetime=15, comment=comment)
+
+async def send_photo_with_trade_skin(call):
+    await call.message.delete()
+    directory = "files_for_admin/photo_for_trade"
+    photos = list()
+    formats = ['.jpg', '.jpeg', '.png']
     
-    await call.message.answer(f'Отправьте {data["amount"]}руб на счёт QIWI\n'
-                              f'Ссылка: <a href="{bill.pay_url}">ССЫЛКА</a>\n'
-                              f'Указанный комментарий к оплате: {comment}', parse_mode="HTML")
+    for i in formats:
+        for j in filter(lambda x: x.endswith(i), os.listdir(directory)):
+            photos.append(j)
+    for i in photos:
+        with open(f"{directory}/{i}", 'rb') as photo:
+            await main.bot.send_photo(chat_id=call.message.chat.id, photo=photo)
 
 
 def get_skin() -> dict:
