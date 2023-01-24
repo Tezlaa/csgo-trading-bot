@@ -39,6 +39,15 @@ def start_bot():
             
     logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
     
+    """
+    ----if run via file 'run.py'----
+    from files_for_admin.important import token_telegram, token_qiwi
+    
+    bot = Bot(token=token_telegram, parse_mode='HTML')
+    dp = Dispatcher(bot, storage=MemoryStorage())
+    p2p_qiwi = QiwiP2PClient(secret_p2p=token_qiwi)
+    """
+    
     bot = Bot(token=os.getenv("TOKEN"), parse_mode='HTML')
     dp = Dispatcher(bot, storage=MemoryStorage())
     p2p_qiwi = QiwiP2PClient(secret_p2p=os.getenv("TOKEN_QIWI"))
