@@ -18,8 +18,8 @@ async def send_message_all_admin(text_for_admin: str, photo=False):
     
     list_admin = await get_admin_id()
     for admin_id in list_admin:
-        await main.bot.send_message(admin_id, time_now, parse_mode='MARKDOWN')
-        await main.bot.send_message(admin_id, text_for_admin, parse_mode='MARKDOWN')
+        await main.bot.send_message(chat_id=admin_id, text=time_now, parse_mode='MARKDOWN')
+        await main.bot.send_message(chat_id=admin_id, text=text_for_admin, parse_mode='MARKDOWN')
         if photo:
             await main.bot.send_photo(admin_id, photo)
     return

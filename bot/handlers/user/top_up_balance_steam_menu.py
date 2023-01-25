@@ -149,8 +149,6 @@ async def select_payment(call: types.CallbackQuery, state: FSMContext):
         bill = await main.p2p_qiwi.create_p2p_bill(amount=data['amount'],
                                                    expire_at=(datetime.now() + timedelta(minutes=3)),
                                                    comment=comment)
-        async with state.proxy() as data:
-            data["bill"] = bill
 
         await call.message.edit_text(f'Отправьте <em>{data["amount"]}руб<em> на счёт QIWI\n'
                                      f'Указав в комментарии к оплате: {comment}\n'
@@ -169,18 +167,19 @@ async def qiwi_payment(call: types.CallbackQuery, state: FSMContext):
 
         async with state.proxy() as data:
             if data["link_or_login"][:5] == "Трейд":
-                login_or_link = data["link_or_login"][:5].split('"')[1]
+                login_or_link = data["link_or_login"].split('"')[1]
             else:
-                login_or_link = data["link_or_login"][:5].split(" ")[1]
+                login_or_link = data["link_or_login"].split(" ")[1]
 
             text_for_admin = (f"_❗Заявка на пополнение Steam_\n"
                               f"Пополнение: `{login_or_link}`\n"
-                              f"Через {data['amount']} на ***{data['payment_via']}руб***")
+                              f"Через {data['payment_via']} на ***{data['amount']}руб***")
 
             await send_message_all_admin(text_for_admin)
 
-        await call.message.edit_caption('⏳Ожидайте поступления средств',
-                                        reply_markup=start_kb)
+        await call.message.delete()
+        await call.message.answer('⏳Ожидайте поступления средств',
+                                  reply_markup=start_kb)
         await state.finish()
     else:
         await call.message.answer('⚠Вы не оплатили счёт', reply_markup=inline.qiwi_menu(is_url=False, bill=bill.id))
