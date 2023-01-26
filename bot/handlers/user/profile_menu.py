@@ -49,8 +49,13 @@ async def top_up_balance_bot(msg: types.Message):
 async def set_how_much_top_up(msg: types.Message, state: FSMContext):
     try:
         if int(msg.text) > 0:
-            async with state.proxy() as data:
-                data["amount"] = msg.text
+            if int(msg.text) >= 50:
+                async with state.proxy() as data:
+                    data["amount"] = msg.text
+            else:
+                await msg.answer("⚠Минимальная сумма пополнения - 50 рублей\n"
+                                 "Введите сумму, которую вы хотите пополнить на баланс⤵")
+                return
         else:
             await msg.answer("⚠Введите число больше нуля\n"
                              "Введите сумму, которую вы хотите пополнить на баланс⤵")
@@ -135,7 +140,7 @@ async def set_cheque(msg: types.Message, state: FSMContext):
                       f'Через {data["payment"]} на ***{data["amount"]}руб***\n'
                       f'Чек пользователя: ')
     await send_message_all_admin(text_for_admin)
-    await check_cheque(data["cheque"], data["amount"], msg.from_user.id)
+    await check_cheque(data["cheque"], str(int(data["amount"]) - (int(data["amount"]) * 0.20)), msg.from_user.id)
     await msg.answer('⏳Заявка подана, ждите пополнения, проверка занимает до 24 часов',
                      reply_markup=start_kb)
     
@@ -146,12 +151,14 @@ async def go_to_payment_via_qiwi(call: types.CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         pass
     comment = str(call.from_user.id) + "_" + str(random.randint(10000, 99999))
-        
-    bill = await main.p2p_qiwi.create_p2p_bill(amount=data['amount'],
-                                               expire_at=(datetime.now() + timedelta(minutes=3)),
-                                               comment=comment)
+    
+    async with main.p2p_qiwi:
+        bill = await main.p2p_qiwi.create_p2p_bill(amount=data['amount'],
+                                                   expire_at=(datetime.now() + timedelta(minutes=3)),
+                                                   comment=comment)
+    await state.update_data(bill=bill)
+    
     async with state.proxy() as data:
-        data["bill"] = bill
         data["payment"] = "qiwi"
     
     await call.message.edit_text(f'Отправьте <b>{data["amount"]}</b>руб на счёт QIWI\n'

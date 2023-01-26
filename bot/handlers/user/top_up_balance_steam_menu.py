@@ -146,23 +146,25 @@ async def select_payment(call: types.CallbackQuery, state: FSMContext):
     elif data["payment_via"] == 'qiwi':
         comment = str(call.from_user.id) + "_" + str(random.randint(10000, 99999))
 
-        bill = await main.p2p_qiwi.create_p2p_bill(amount=data['amount'],
-                                                   expire_at=(datetime.now() + timedelta(minutes=3)),
-                                                   comment=comment)
-
-        await call.message.edit_text(f'Отправьте <em>{data["amount"]}руб<em> на счёт QIWI\n'
+        async with main.p2p_qiwi:
+            bill = await main.p2p_qiwi.create_p2p_bill(amount=data['amount'],
+                                                       expire_at=(datetime.now() + timedelta(minutes=15)),
+                                                       comment=comment)
+        await state.update_data(bill=bill)
+   
+        await call.message.edit_text(f'Отправьте <em>{data["amount"]}руб</em> на счёт QIWI\n'
                                      f'Указав в комментарии к оплате: {comment}\n'
                                      f'<a href="{bill.pay_url}">ССЫЛКА</a>',
                                      reply_markup=inline.qiwi_menu(url=bill.pay_url, bill=bill.id),
                                      parse_mode="HTML")
-
+        
         await FsmMarket.next()
 
 
 async def qiwi_payment(call: types.CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         bill: Bill = data.get("bill")
-
+        
     if await main.p2p_qiwi.check_if_bill_was_paid(bill):
 
         async with state.proxy() as data:
