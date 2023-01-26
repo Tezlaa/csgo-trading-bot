@@ -9,7 +9,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from bot import main
 from bot.database.sqlite_db import unbalance
-from bot.handlers.user.different import send_message_all_admin
+from bot.handlers.user.different import send_message_all_admin, offer_steam_notification
 from bot.keyboards import inline
 from bot.keyboards.reply import go_to_main_menu, select_type_market_kb, start_kb
 
@@ -135,13 +135,13 @@ async def select_payment(call: types.CallbackQuery, state: FSMContext):
         if data["link_or_login"][:5] == "Трейд":
             login_or_link = data["link_or_login"].split('"')[1]
         else:
-            login_or_link = data["link_or_login"]
+            login_or_link = data["link_or_login"].split(" ")[1]
 
         text_for_admin = (f"_❗Заявка на пополнение Steam_\n"
                           f"Пополнение: `{login_or_link}`\n"
                           f"Через {data['payment_via']} на ***{data['amount']}руб***")
 
-        await send_message_all_admin(text_for_admin)
+        await offer_steam_notification(text_for_admin, call.from_user.id)
 
     elif data["payment_via"] == 'qiwi':
         comment = str(call.from_user.id) + "_" + str(random.randint(10000, 99999))

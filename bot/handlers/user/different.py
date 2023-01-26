@@ -1,10 +1,9 @@
 import os
-import random
 from datetime import datetime
 
 from aiogram import types
 from aiogram.types import InlineKeyboardButton
-from bot.keyboards.inline import check_cheque_admin
+from bot.keyboards.inline import check_cheque_admin, offer_steam
 
 from bot import main
 from bot.database.sqlite_db import get_admin_id
@@ -25,7 +24,25 @@ async def send_message_all_admin(text_for_admin: str, photo=False):
     return
 
 
-async def check_cheque(photo, how_much: str, id_user: str) -> list:
+async def offer_steam_notification(text_for_admin: str, user_id: str):
+    tz = pytz.timezone('Europe/Moscow')
+    time_now = f'Время заявки: ***{str(datetime.now(tz)).split(".")[0]}***'
+    
+    list_admin = await get_admin_id()
+    msg_id = []
+    for admin_id in list_admin:
+        await main.bot.send_message(chat_id=admin_id, text=time_now, parse_mode='MARKDOWN')
+    for index, admin_id in enumerate(list_admin):
+        msg_id.append((await main.bot.send_message(admin_id, 'Получение...')).message_id)
+        await main.bot.delete_message(admin_id, msg_id[index])
+        msg_id[index] += len(list_admin)
+    for admin_id in list_admin:
+        await main.bot.send_message(chat_id=admin_id, text=text_for_admin, parse_mode='MARKDOWN',
+                                    reply_markup=offer_steam(user_id=user_id, msg_id=msg_id))
+    return
+
+
+async def check_cheque(photo, how_much: str, id_user: str):
     list_admin = await get_admin_id()
     msg_id = []
     for index, admin_id in enumerate(list_admin):
