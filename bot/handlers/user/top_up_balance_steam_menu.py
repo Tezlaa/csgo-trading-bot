@@ -177,7 +177,7 @@ async def qiwi_payment(call: types.CallbackQuery, state: FSMContext):
                               f"Пополнение: `{login_or_link}`\n"
                               f"Через {data['payment_via']} на ***{data['amount']}руб***")
 
-            await send_message_all_admin(text_for_admin)
+            await offer_steam_notification(text_for_admin, call.from_user.id)
 
         await call.message.delete()
         await call.message.answer('⏳Ожидайте поступления средств',

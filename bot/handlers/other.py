@@ -8,8 +8,12 @@ from bot.keyboards.reply import start_kb
 
 async def bot_start(msg: Message):
     name = msg.from_user.username if msg.from_user.username != "None" else msg.from_user.first_name
-    await msg.answer(f'Привет, {name}!\n'
-                     f'Выбери интересующий пункт', reply_markup=start_kb)
+    await msg.answer_photo(photo=open("files_for_admin\\photo_fo_start.png", "rb"),
+                           caption=f'Привет, {name}!\n'
+                                   f'Выбери интересующий пункт',
+                           reply_markup=start_kb,
+                           parse_mode="HTML")
+    
     if msg.text[-1] != "t":
         ref_id = msg.text[7:]
         await create_profile(user_id=msg.from_user.id, username=name, referal=ref_id)
