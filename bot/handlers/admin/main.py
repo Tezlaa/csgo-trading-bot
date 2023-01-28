@@ -1,10 +1,36 @@
 from aiogram import Dispatcher, types
 
 from bot import main
-from bot.database.sqlite_db import get_admin_id, top_up_balance
+from bot.database.sqlite_db import get_admin_id, top_up_balance, get_all_user, set_active, get_all_active
 from bot.handlers.user.different import delete_cheque
 
 
+async def send_msg_all_user(msg: types.Message):
+    text = msg.text[9:]
+    if str(msg.from_user.id) in await get_admin_id():
+        for user_id in await get_all_user():
+            try:
+                await main.bot.send_message(user_id[0], text)
+                await set_active(user_id[0], 1)
+            except Exception:
+                await set_active(user_id[0], 0)
+        await msg.answer("Рассылка успешно выполнена")
+    return
+
+
+async def get_stat(msg: types.Message):
+    if str(msg.from_user.id) in await get_admin_id():
+        all_user = len(await get_all_user())
+        active_user = len(await get_all_active())
+        delete_user = all_user - active_user
+        admins = len(await get_admin_id())
+        
+        await msg.answer(f"▪️Пользователей: {all_user}\n"
+                         f"▫️Активных: {active_user}\n"
+                         f"▫️Удаленных: {delete_user}\n"
+                         f"▪️Админов: {admins}")
+                   
+            
 async def top_up_balance_steam(call: types.CallbackQuery):
     data_kb = call.data.split("_")
     user_id = data_kb[2]
@@ -54,6 +80,8 @@ async def check_is_not_ok(call: types.CallbackQuery):
     
 
 def register_admin_handlers(dp: Dispatcher):
+    dp.register_message_handler(get_stat, commands=['statistic'])
+    dp.register_message_handler(send_msg_all_user, commands=['sendAll'])
     dp.register_callback_query_handler(top_up_balance_steam, text_contains='topupsteam_')
     
     dp.register_callback_query_handler(check_is_good, text_contains='GoodCheque_')

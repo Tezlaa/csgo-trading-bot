@@ -8,7 +8,7 @@ from bot.keyboards.reply import start_kb
 
 async def bot_start(msg: Message):
     name = msg.from_user.username if msg.from_user.username != "None" else msg.from_user.first_name
-    await msg.answer_photo(photo=open("files_for_admin\\photo_fo_start.png", "rb"),
+    await msg.answer_photo(photo=open("files_for_admin\\photo_for_start.png", "rb"),
                            caption=f'Привет, {name}!\n'
                                    f'Выбери интересующий пункт',
                            reply_markup=start_kb,

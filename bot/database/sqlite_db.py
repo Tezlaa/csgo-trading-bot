@@ -15,6 +15,7 @@ async def sql_start():
         
     base.execute("""CREATE TABLE IF NOT EXISTS profile(
         user_id TEXT PRIMARY KEY,
+        active INTEGER,
         name TEXT,
         balance INTEGER,
         all_top_up_balance INTEGER,
@@ -24,10 +25,30 @@ async def sql_start():
     base.commit()
 
 
+async def get_all_user() -> list:
+    all_user = cur.execute("SELECT user_id FROM profile").fetchall()
+    return all_user
+
+
+async def get_all_active() -> list:
+    result_list = []
+    list_with_active_user = cur.execute("SELECT active FROM profile").fetchall()
+    for status in list_with_active_user:
+        if status[0] == 1:
+            result_list.append(1)
+            
+    return result_list
+            
+
+async def set_active(user_id: str, value: int):
+    cur.execute("UPDATE profile SET 'active' = ? WHERE user_id = ?", (value, user_id))
+    base.commit()
+
+
 async def create_profile(user_id: str, username, referal=None):
     user = cur.execute(f'SELECT 1 FROM profile WHERE user_id == {user_id}').fetchone()
     if not user:
-        cur.execute("INSERT INTO profile VALUES(?, ?, ?, ?, ?, ?)", (user_id, username, 15, 0, referal, 0))
+        cur.execute("INSERT INTO profile VALUES(?, ?, ?, ?, ?, ?, ?)", (user_id, 1, username, 15, 0, referal, 0))
         base.commit()
 
 
