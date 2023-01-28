@@ -22,12 +22,12 @@ way_of_payment = InlineKeyboardMarkup(row_width=1).add(
 )
 
 
-def offer_steam(user_id: str, msg_id: list):
+def offer_steam(user_id: str, msg_id: list, howm: str, bot: str):
     kb = InlineKeyboardMarkup(row_width=1).add(
         InlineKeyboardButton("✅Пополнено",
-                             callback_data=f"topupsteam_agree_{user_id}_{msg_id}"),
+                             callback_data=f"topupsteam_agree_{user_id}_{msg_id}_{howm}_{bot}"),
         InlineKeyboardButton("❌Не пополнено",
-                             callback_data=f"topupsteam_notagree_{user_id}_{msg_id}"),
+                             callback_data=f"topupsteam_notagree_{user_id}_{msg_id}_{howm}_{bot}"),
     )
     return kb
 

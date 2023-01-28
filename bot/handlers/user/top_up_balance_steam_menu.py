@@ -8,8 +8,8 @@ from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from bot import main
-from bot.database.sqlite_db import unbalance
-from bot.handlers.user.different import send_message_all_admin, offer_steam_notification
+from bot.database.sqlite_db import unbalance, top_up_balance
+from bot.handlers.user.different import offer_steam_notification
 from bot.keyboards import inline
 from bot.keyboards.reply import go_to_main_menu, select_type_market_kb, start_kb
 
@@ -141,7 +141,7 @@ async def select_payment(call: types.CallbackQuery, state: FSMContext):
                           f"Пополнение: `{login_or_link}`\n"
                           f"Через {data['payment_via']} на ***{data['amount']}руб***")
 
-        await offer_steam_notification(text_for_admin, call.from_user.id)
+        await offer_steam_notification(text_for_admin, call.from_user.id, data['amount'], "+")
 
     elif data["payment_via"] == 'qiwi':
         comment = str(call.from_user.id) + "_" + str(random.randint(10000, 99999))
@@ -177,8 +177,11 @@ async def qiwi_payment(call: types.CallbackQuery, state: FSMContext):
                               f"Пополнение: `{login_or_link}`\n"
                               f"Через {data['payment_via']} на ***{data['amount']}руб***")
 
-            await offer_steam_notification(text_for_admin, call.from_user.id)
-
+            await offer_steam_notification(text_for_admin, call.from_user.id, "0", "-")
+            
+            await top_up_balance(data["amount"], call.from_user.id)
+            await unbalance(data["amount"], call.from_user.id)
+            
         await call.message.delete()
         await call.message.answer('⏳Ожидайте поступления средств',
                                   reply_markup=start_kb)

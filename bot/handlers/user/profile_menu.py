@@ -8,7 +8,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from bot import main
 from files_for_admin.important import bank
-from bot.database.sqlite_db import count_ref, get_all_top_up, get_balance_user
+from bot.database.sqlite_db import count_ref, get_all_top_up, get_balance_user, top_up_balance
 from bot.handlers.user.different import check_cheque, send_message_all_admin
 from bot.keyboards import inline
 from bot.keyboards.reply import back_kb, menu_profile, start_kb
@@ -181,7 +181,9 @@ async def check_on_payment(call: types.CallbackQuery, state: FSMContext):
                           f'Через {data["payment"]} на ***{data["amount"]}руб***')
         
         await send_message_all_admin(text_for_admin)
-        await call.message.edit_text('💎Пополение успешно', reply_markup=start_kb)
+        await call.message.delete()
+        await call.message.answer('💎Пополение успешно', reply_markup=start_kb)
+        await top_up_balance(data["amount"], call.from_user.id)
         
         await state.finish()
     else:

@@ -9,13 +9,20 @@ async def top_up_balance_steam(call: types.CallbackQuery):
     data_kb = call.data.split("_")
     user_id = data_kb[2]
     msg_id = data_kb[3]
+    how_much = data_kb[4]
+    isbot = data_kb[5]
 
     if data_kb[1] == "agree":
         await main.bot.send_message(user_id, text="💎Ваш баланс успешно пополнен!")
         for admin_id in await get_admin_id():
             await delete_cheque(admin_id, msg_id, text="Пополнено!✅")
     elif data_kb[1] == "notagree":
-        await main.bot.send_message(user_id, "❗Не было зачислено на баланс Steam\n")
+        if isbot == "+":
+            await main.bot.send_message(user_id, "❗Не было зачислено на баланс Steam\n"
+                                                 "Выполнен возврат на баланс")
+            await top_up_balance(how_much, user_id)
+        else:
+            await main.bot.send_message(user_id, "❗Не было зачислено на баланс Steam\n")
         for admin_id in await get_admin_id():
             await delete_cheque(admin_id, msg_id, text="Не пополнено!❌")
 

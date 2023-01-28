@@ -24,7 +24,7 @@ async def send_message_all_admin(text_for_admin: str, photo=False):
     return
 
 
-async def offer_steam_notification(text_for_admin: str, user_id: str):
+async def offer_steam_notification(text_for_admin: str, user_id: str, how_much: str, bot: str):
     tz = pytz.timezone('Europe/Moscow')
     time_now = f'Время заявки: ***{str(datetime.now(tz)).split(".")[0]}***'
     
@@ -38,7 +38,7 @@ async def offer_steam_notification(text_for_admin: str, user_id: str):
         msg_id[index] += len(list_admin)
     for admin_id in list_admin:
         await main.bot.send_message(chat_id=admin_id, text=text_for_admin, parse_mode='MARKDOWN',
-                                    reply_markup=offer_steam(user_id=user_id, msg_id=msg_id))
+                                    reply_markup=offer_steam(user_id=user_id, msg_id=msg_id, howm=how_much, bot=bot))
     return
 
 
