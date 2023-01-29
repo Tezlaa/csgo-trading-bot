@@ -11,6 +11,7 @@ start_kb = ReplyKeyboardMarkup(resize_keyboard=True).add(
 """menu: TOP UP BALANCE STEAME"""
 select_type_market_kb = ReplyKeyboardMarkup(resize_keyboard=True, row_width=1).add(
     KeyboardButton('❓Где взять трейд-ссылку?'),
+    KeyboardButton('💸Курс'),
     KeyboardButton('Главное меню'),
 )
 
